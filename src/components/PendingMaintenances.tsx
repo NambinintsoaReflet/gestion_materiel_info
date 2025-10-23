@@ -32,42 +32,44 @@ const PendingMaintenances = ({ maintenances = [] }) => {
         Achats (en Attente)
       </h2>
 
-      <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
-        <thead className="bg-[#3d454d] text-left">
-          <tr>
-            <th className="p-2 w-1/5 min-w-[70px] font-medium">
-              ID Équipement
-            </th>
-            <th className="p-2">Modèle</th>
-            <th className="p-2">Type</th>
-            <th className="p-2">Description</th>
-            <th className="p-2 w-1/6 min-w-[90px] text-right">Date prévue</th>
-            <th className="p-2 w-10 text-right">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {currentMaintenances.map((item) => (
-            <tr
-              key={item.id}
-              className="hover:bg-[#3d454d] transition duration-150 border-b border-[#4a4f55]"
-            >
-              <td className="p-2 font-medium">{item.assetId}</td>
-              <td className="p-2">{item.model}</td>
-              <td className="p-2">{item.type}</td>
-              <td className="p-2">{item.description}</td>
-              <td className="p-2 text-right">{item.dueDate}</td>
-              <td className="p-2 text-right">
-                <FaCalendarAlt
-                  size={16}
-                  className="text-blue-400 cursor-pointer hover:text-blue-300 transition"
-                  title="Ouvrir la maintenance"
-                />
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
+          <thead className="bg-[#3d454d] text-left">
+            <tr>
+              <th className="p-2 w-1/5 min-w-[70px] font-medium">
+                ID Équipement
+              </th>
+              <th className="p-2">Modèle</th>
+              <th className="p-2">Type</th>
+              <th className="p-2">Description</th>
+              <th className="p-2 w-1/6 min-w-[90px] text-right">Date prévue</th>
+              <th className="p-2 w-10 text-right">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {currentMaintenances.map((item) => (
+              <tr
+                key={item.id}
+                className="hover:bg-[#3d454d] transition duration-150 border-b border-[#4a4f55]"
+              >
+                <td className="p-2 font-medium">{item.assetId}</td>
+                <td className="p-2">{item.model}</td>
+                <td className="p-2">{item.type}</td>
+                <td className="p-2">{item.description}</td>
+                <td className="p-2 text-right">{item.dueDate}</td>
+                <td className="p-2 text-right">
+                  <FaCalendarAlt
+                    size={16}
+                    className="text-blue-400 cursor-pointer hover:text-blue-300 transition"
+                    title="Ouvrir la maintenance"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
