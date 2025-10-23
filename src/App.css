@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: roboto;
+  src: url("./assets/Roboto-Thin.ttf");
+}
+
+body{
+  background-color: #282c34;
+  color: white;
+  font-family: roboto;
+}
+
+
+.stat-card {
+  width: 230px;
+  border-radius: 2px; /* Bordures arrondies */
+  padding: 10px;
+  color: white; /* Texte blanc par défaut */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombre subtile */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.stat-card-icon {
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.stat-card-title {
+  margin: 0;
+  font-size: 1em;
+  /* opacity: 0.8; */
+}
+
+.stat-card-value {
+  font-size: 2em;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Couleurs spécifiques basées sur la prop 'color' */
+.stat-card.green {
+  background-color: #308f46; /* Exemple vert */
+}
+
+.stat-card.blue {
+  background-color: #346ca9; /* Exemple bleu */
+}
+
+.stat-card.orange {
+  background-color: #c5732e; /* Exemple orange */
+}
+
+.stat-card.red {
+  background-color: #b53945; /* Exemple rouge */
+}

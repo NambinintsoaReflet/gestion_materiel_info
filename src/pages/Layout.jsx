@@ -1,7 +1,18 @@
-import React from 'react'
+import React from "react";
+import { Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Aside from "../components/Aside";
 
 export const Layout = () => {
   return (
-    <div>Layout</div>
-  )
-}
+    <>
+      <Navbar />
+      <div className="flex">
+        <Aside />
+        <div className="flex-1 p-4 ml-15 mt-20 overflow-auto ">
+          <Outlet />
+        </div>
+      </div>
+    </>
+  );
+};
