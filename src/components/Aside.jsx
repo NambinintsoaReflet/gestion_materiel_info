@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FaChartBar, FaCog, FaTachometerAlt, FaUsers } from "react-icons/fa";
+import { FaBuysellads, FaChartBar, FaCog, FaTachometerAlt, FaUsers } from "react-icons/fa";
 import { IoIosHelpCircleOutline } from "react-icons/io";
 import { SiMaterialformkdocs } from "react-icons/si";
 import { MdOutlineManageHistory } from "react-icons/md";
@@ -11,6 +11,12 @@ const menuItems = [
     icon: <SiMaterialformkdocs className="p-1" />,
     label: "Materiels",
   },
+    {
+    to: "/achat",
+    icon: <FaBuysellads className="p-1" />,
+    label: "DA",
+  },
+  
   {
     to: "/suivie",
     icon: <MdOutlineManageHistory className="p-1" />,

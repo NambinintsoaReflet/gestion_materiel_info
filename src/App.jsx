@@ -13,6 +13,7 @@ import Personnel from "./pages/Personnel";
 import Rapport from "./pages/Rapport";
 import Parametre from "./pages/Parametre";
 import Aide from "./pages/Aide";
+import Achat from "./pages/Materiels/Achat";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ function App() {
                   <Route path="/materiels/ajout" element={<AjoutMateriel />} />
                 </Route>
                 <Route path="/suivie" element={<Suivie />} />
+                 <Route path="/achat" element={<Achat />} />
                 <Route path="/personnel" element={<Personnel />} />
                 <Route path="/reports" element={<Rapport />} />
                 <Route path="/settings" element={<Parametre />} />
