@@ -69,7 +69,7 @@ const AjoutMateriel = () => {
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Date de la demande</label>
+            <label className="block text-sm mb-1">Date d'ajout</label>
             <input
               type="date"
               name="dateDemande"
