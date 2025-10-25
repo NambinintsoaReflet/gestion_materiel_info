@@ -13,14 +13,16 @@ import Personnel from "./pages/Personnel";
 import Rapport from "./pages/Rapport";
 import Parametre from "./pages/Parametre";
 import Aide from "./pages/Aide";
-import Achat from "./pages/Materiels/Achat";
+import Achat from "./pages/DA/Achat";
+import LayoutAchat from "./pages/DA/LayoutAchat";
+import AjoutAchat from "./pages/DA/AjoutAchat";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <>
-      <HashRouter >
+      <HashRouter>
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
             <Routes>
@@ -31,8 +33,11 @@ function App() {
                   <Route index element={<Materiel />} />
                   <Route path="/materiels/ajout" element={<AjoutMateriel />} />
                 </Route>
+                <Route path="/achat" element={<LayoutAchat />}>
+                  <Route index element={<Achat />} />
+                  <Route path="/achat/ajout" element={<AjoutAchat />} />
+                </Route>
                 <Route path="/suivie" element={<Suivie />} />
-                 <Route path="/achat" element={<Achat />} />
                 <Route path="/personnel" element={<Personnel />} />
                 <Route path="/reports" element={<Rapport />} />
                 <Route path="/settings" element={<Parametre />} />
@@ -41,7 +46,7 @@ function App() {
             </Routes>
           </QueryClientProvider>
         </AuthProvider>
-      </HashRouter >
+      </HashRouter>
     </>
   );
 }
