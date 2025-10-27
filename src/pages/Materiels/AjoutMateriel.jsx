@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa";
+import SelectSearch from "react-select-search";
+import Select from "react-select/base";
+import CustomSelect from "../../components/CustomSelect";
 
 const AjoutMateriel = () => {
   const today = new Date().toISOString().split("T")[0]; // 📅 Date du jour (YYYY-MM-DD)
@@ -15,24 +18,50 @@ const AjoutMateriel = () => {
     description: "",
   });
 
-  // Gérer la saisie
+  // les DA
+  const [selectedIdDA, setSelectedIdDA] = useState(null);
+  const da = [
+    {
+      id: 1,
+      numeroDemande: "DA-001",
+      dateDemande: "2025-10-25",
+      description: "Dell Latitude 7420 pour usage bureautique",
+      etat: "En cours",
+    },
+    {
+      id: 2,
+      numeroDemande: "DA-002",
+      dateDemande: "2025-10-20",
+      description: "HP LaserJet Pro M404",
+      etat: "Livre",
+    },
+  ];
+
+  // Transformer les achats pour CustomSelect
+  const options = da.map((a) => ({
+    value: a.id,
+    label: `${a.numeroDemande} - ${a.description}`,
+  }));
+  ///
+
+  // 🧩 Gérer la saisie dans les champs
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Soumettre le formulaire
+  // 🧩 Soumission du formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.model || !formData.type) {
+    if (!formData.model.trim() || !formData.type.trim()) {
       alert("Veuillez remplir au moins le modèle et le type.");
       return;
     }
 
     console.log("✅ Données à envoyer :", formData);
 
-    // Réinitialisation
+    // Réinitialisation du formulaire
     setFormData({
       numeroDemande: "",
       dateDemande: today,
@@ -43,6 +72,7 @@ const AjoutMateriel = () => {
       quantity: "",
       description: "",
     });
+    setSelectedIdDA(null);
   };
 
   return (
@@ -58,14 +88,19 @@ const AjoutMateriel = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm mb-1">N° Demande d’achat</label>
-              <input
-                type="text"
-                name="numeroDemande"
-                value={formData.numeroDemande}
-                onChange={handleChange}
-                placeholder="Ex: DA-73/25/H2"
-                className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 outline-none"
-                required
+              <CustomSelect
+                options={options}
+                placeholder="Ex: DA-001"
+                value={options.find((o) => o.value === selectedIdDA) || null}
+                onChange={(option) => {
+                  setSelectedIdDA(option.value); // stocke juste l'ID si besoin
+                  setFormData((prev) => ({
+                    ...prev,
+                    numeroDemande:
+                      da.find((d) => d.id === option.value)?.numeroDemande ||
+                      "",
+                  }));
+                }}
               />
             </div>
 

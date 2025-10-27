@@ -53,10 +53,10 @@ const Achat = () => {
           className="rounded-md p-1 pl-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
         >
           <option value="">-- État --</option>
-          <option value="en_cours">En cours</option>
-          <option value="livre">Livré</option>
-          <option value="en_attente">En attente</option>
-          <option value="annule">Annulé</option>
+          <option value="En cours">En cours</option>
+          <option value="Livre">Livré</option>
+          <option value="En attente">En attente</option>
+          <option value="Annule">Annulé</option>
         </select>
         <input
           type="search"
