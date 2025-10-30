@@ -9,7 +9,7 @@ function Navbar() {
     logout(); // Appelle la fonction de déconnexion du contexte
   };
 
-  console.log( "user :", user);
+  // console.log( "user :", user);
 
   return (
     <>
