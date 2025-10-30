@@ -59,7 +59,7 @@ const AjoutMateriel = () => {
       return;
     }
 
-    console.log("✅ Données à envoyer :", formData);
+    // console.log("✅ Données à envoyer :", formData);
 
     // Réinitialisation du formulaire
     setFormData({
