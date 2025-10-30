@@ -10,7 +10,6 @@ function Navbar() {
   };
 
   console.log( "user :", user);
-  console.log( "username :", user.name);
 
   return (
     <>
@@ -24,7 +23,7 @@ function Navbar() {
               className="ml-auto flex items-center gap-3 cursor-pointer text-white"
               onClick={handleLogout}
             >
-              <h3>{user.name}</h3>
+              <h3>{user}</h3>
               <IoIosLogOut className="text-[#1E63F0] w-6 h-6" />
             </div>
           </div>
