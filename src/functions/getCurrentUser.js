@@ -1,7 +1,7 @@
 import { api } from "../api/axios";
 
 export async function getCurrentUser() {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("auth");
 
   if (!token) return null;
 

@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
 
       // Charger le user depuis le back avec le token
       getCurrentUser()
-        .then((u) => setUser(u.last_name))
+        .then((u) => setUser(u.name))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
     setUser(usr);
     setToken(tk);
     setAuthToken(tk);
-    localStorage.setItem("auth", JSON.stringify({ token: tk, user: usr }));
+    localStorage.setItem("auth", JSON.stringify({ token: tk}));
     navigate("/");
   };
 

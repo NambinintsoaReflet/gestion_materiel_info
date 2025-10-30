@@ -16,6 +16,7 @@ import Aide from "./pages/Aide";
 import Achat from "./pages/DA/Achat";
 import LayoutAchat from "./pages/DA/LayoutAchat";
 import AjoutAchat from "./pages/DA/AjoutAchat";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -27,21 +28,26 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="/materiels" element={<LayoutMateriel />}>
-                  <Route index element={<Materiel />} />
-                  <Route path="/materiels/ajout" element={<AjoutMateriel />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="/materiels" element={<LayoutMateriel />}>
+                    <Route index element={<Materiel />} />
+                    <Route
+                      path="/materiels/ajout"
+                      element={<AjoutMateriel />}
+                    />
+                  </Route>
+                  <Route path="/achat" element={<LayoutAchat />}>
+                    <Route index element={<Achat />} />
+                    <Route path="/achat/ajout" element={<AjoutAchat />} />
+                  </Route>
+                  <Route path="/suivie" element={<Suivie />} />
+                  <Route path="/personnel" element={<Personnel />} />
+                  <Route path="/reports" element={<Rapport />} />
+                  <Route path="/settings" element={<Parametre />} />
+                  <Route path="/help" element={<Aide />} />
                 </Route>
-                <Route path="/achat" element={<LayoutAchat />}>
-                  <Route index element={<Achat />} />
-                  <Route path="/achat/ajout" element={<AjoutAchat />} />
-                </Route>
-                <Route path="/suivie" element={<Suivie />} />
-                <Route path="/personnel" element={<Personnel />} />
-                <Route path="/reports" element={<Rapport />} />
-                <Route path="/settings" element={<Parametre />} />
-                <Route path="/help" element={<Aide />} />
               </Route>
             </Routes>
           </QueryClientProvider>
