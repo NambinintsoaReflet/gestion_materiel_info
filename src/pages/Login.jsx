@@ -77,6 +77,7 @@ const Login = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       type="email"
                       placeholder="Email"
+                      required
                     />
                   </div>
                   <div className="mb-4">
@@ -93,11 +94,16 @@ const Login = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       type="password"
                       placeholder="Password"
+                      required
                     />
                   </div>
                   <div className="mb-6 text-center">
                     {error && (
-                      <p className="text-red-600 text-sm">{error}</p>
+                      <p className="text-red-600 text-sm">
+                        {error.response?.data?.message ||
+                          error.message ||
+                          "Erreur de connexion"}
+                      </p>
                     )}
 
                     <button
@@ -108,7 +114,6 @@ const Login = () => {
                       {isPending ? "Connexion..." : "Se connecter"}
                     </button>
                   </div>
-                  
                 </form>
               </div>
             </div>
