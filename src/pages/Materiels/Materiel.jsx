@@ -31,7 +31,6 @@ const Materiel = () => {
     return true;
   });
 
-
   // GET EQUIPEMENTS
   const fetchEquipement = async () => {
     try {
@@ -63,9 +62,6 @@ const Materiel = () => {
   // 🌀 États intermédiaires de rendu
   if (loading) return <Chargement />; // si en cours de chargement, affiche le loader
   if (error) return <p className="error-message">{error}</p>; // si erreur, affiche le message
-  if (!equipement || equipement.length === 0) {
-    return <p className="no-events-message">Aucun equipements disponible.</p>; // si liste vide
-  }
 
   return (
     <div>
@@ -116,34 +112,42 @@ const Materiel = () => {
           </thead>
 
           <tbody>
-            {filteredEquipements.map((item) => (
-              <tr
-                key={item.id}
-                className="hover:bg-[#3d454d] transition duration-150 border-b border-[#4a4f55]"
-              >
-                <td className="p-2 font-medium">{item.id}</td>
-                <td className="p-2 font-medium">{item.numeroDemande}</td>
-                <td className="p-2">{item.type}</td>
-                <td className="p-2">{item.marque}</td>
-                <td className="p-2">{item.model}</td>
-                <td className="p-2">{item.description}</td>
-                <td className="p-2">{item.site}</td>
-                <td className="p-2 text-right">{item.quantity}</td>
-                <td className="p-2 text-right">{item.user.name}</td>
-                <td className="p-2 text-right flex justify-end gap-2">
-                  <FaEdit
-                    size={16}
-                    className="text-green-400 cursor-pointer hover:text-green-300 transition"
-                    title="Modifier"
-                  />
-                  <FaTrash
-                    size={16}
-                    className="text-red-400 cursor-pointer hover:text-red-300 transition"
-                    title="Supprimer"
-                  />
+            {filteredEquipements.length > 0 ? (
+              filteredEquipements.map((item) => (
+                <tr
+                  key={item.id}
+                  className="hover:bg-[#3d454d] transition duration-150 border-b border-[#4a4f55]"
+                >
+                  <td className="p-2 font-medium">{item.id}</td>
+                  <td className="p-2 font-medium">{item.numeroDemande}</td>
+                  <td className="p-2">{item.type}</td>
+                  <td className="p-2">{item.marque}</td>
+                  <td className="p-2">{item.model}</td>
+                  <td className="p-2">{item.description}</td>
+                  <td className="p-2">{item.site}</td>
+                  <td className="p-2 text-right">{item.quantity}</td>
+                  <td className="p-2 text-right">{item.user.name}</td>
+                  <td className="p-2 text-right flex justify-end gap-2">
+                    <FaEdit
+                      size={16}
+                      className="text-green-400 cursor-pointer hover:text-green-300 transition"
+                      title="Modifier"
+                    />
+                    <FaTrash
+                      size={16}
+                      className="text-red-400 cursor-pointer hover:text-red-300 transition"
+                      title="Supprimer"
+                    />
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={10} className="text-center p-4 text-gray-400">
+                  Aucun résultat
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
