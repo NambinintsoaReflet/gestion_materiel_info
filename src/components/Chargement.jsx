@@ -2,7 +2,7 @@ import React from "react";
 
 const Chargement = () => {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
+    <div className="flex items-center justify-center h-screen bg-[#282c34]">
       <div className="text-center">
         <div role="status">
           <svg

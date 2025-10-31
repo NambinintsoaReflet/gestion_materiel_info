@@ -1,86 +1,135 @@
-import React from "react";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaEdit, FaSync, FaTrash } from "react-icons/fa";
+import { api } from "../../api/axios";
+import Chargement from "../../components/Chargement";
 
 const Materiel = () => {
-  // Données statiques
-  const materiels = [
-    {
-      id: 1,
-      assetId: "MAT-001",
-      marque: "",
-      model: "Dell Latitude 7420",
-      type: "Ordinateur portable",
-      description: "Portable pour usage bureautique",
-      quantity: 5,
-    },
-    {
-      id: 2,
-      assetId: "MAT-002",
-      marque: "",
-      model: "HP LaserJet Pro M404",
-      type: "Imprimante",
-      description: "Imprimante laser noir/blanc",
-      quantity: 2,
-    },
-    {
-      id: 3,
-      assetId: "MAT-003",
-      marque: "",
-      model: "Cisco Catalyst 2960",
-      type: "Switch réseau",
-      description: "Switch réseau 24 ports",
-      quantity: 3,
-    },
-    {
-      id: 4,
-      assetId: "MAT-004",
-      marque: "",
-      model: "Logitech MX Master 3",
-      type: "Souris",
-      description: "Souris sans fil ergonomique",
-      quantity: 10,
-    },
-  ];
+  const [equipement, setEquipement] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  //filtre
+  const [filterSite, setFilterSite] = useState(""); // filtre par site
+  const [searchTerm, setSearchTerm] = useState(""); // filtre par recherche
+
+  const filteredEquipements = equipement.filter((item) => {
+    // 🔹 filtre site si sélectionné
+    if (filterSite && item.site !== filterSite) return false;
+
+    // 🔹 filtre recherche (DA, type, marque, modèle, description)
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const match =
+        (item.numeroDemande?.toLowerCase().includes(term) ?? false) ||
+        (item.type?.toLowerCase().includes(term) ?? false) ||
+        (item.marque?.toLowerCase().includes(term) ?? false) ||
+        (item.model?.toLowerCase().includes(term) ?? false) ||
+        (item.description?.toLowerCase().includes(term) ?? false);
+      if (!match) return false;
+    }
+
+    return true;
+  });
+
+
+  // GET EQUIPEMENTS
+  const fetchEquipement = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get("/equipements");
+
+      // setPublications(normalizePublications(data));
+      setEquipement(data);
+      console.log("equipements :", data);
+    } catch (err) {
+      console.error(err); // trace l’erreur en console
+      setError("Erreur lors du chargement des événements."); // affiche un message utilisateur
+    } finally {
+      setLoading(false); // désactive le loader quoi qu’il arrive (succès ou erreur)
+    }
+  };
+
+  useEffect(() => {
+    fetchEquipement();
+  }, []);
+
+  //Rafraichir
+  const handleRefresh = () => {
+    fetchEquipement(); // 🔹 recharge la liste depuis l'API
+    setFilterSite(""); // 🔹 reset filtre site
+    setSearchTerm(""); // 🔹 reset recherche
+  };
+
+  // 🌀 États intermédiaires de rendu
+  if (loading) return <Chargement />; // si en cours de chargement, affiche le loader
+  if (error) return <p className="error-message">{error}</p>; // si erreur, affiche le message
+  if (!equipement || equipement.length === 0) {
+    return <p className="no-events-message">Aucun equipements disponible.</p>; // si liste vide
+  }
+
   return (
     <div>
-      <div className="flex justify-end p-2">
+      <div className="flex justify-end p-2 gap-2">
+        <select
+          value={filterSite}
+          onChange={(e) => setFilterSite(e.target.value)}
+          className="rounded-md p-1 pl-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+        >
+          <option value="">-- tout --</option>
+          <option value="HITA1">HITA1</option>
+          <option value="HITA2">HITA2</option>
+          <option value="HITA TANA">HITA TANA</option>
+        </select>
+
         <input
           type="search"
-          className=" rounded-md p-1 pl-2 outline-[0px] border border-gray-400 text-sm "
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="rounded-md p-1 pl-2 outline-[0px] border border-gray-400 text-sm"
           placeholder="Recherche..."
-          name=""
-          id=""
         />
+
+        <button
+          onClick={handleRefresh}
+          className="flex items-center gap-1 cursor-pointer rounded-md p-1 pl-2 hover:bg-[#314254] border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+        >
+          <FaSync /> Rafraîchir
+        </button>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
           <thead className="bg-[#3d454d] text-left">
             <tr>
-              <th className="p-2 w-1/5 min-w-[70px] font-medium">
-                ID Équipement
-              </th>
+              <th className="p-2">ID</th>
+              <th className="p-2">DA</th>
+              <th className="p-2">Type</th>
               <th className="p-2">Marque</th>
               <th className="p-2">Modèle</th>
-              <th className="p-2">Type</th>
+
               <th className="p-2">Description</th>
+              <td className="p-2">Sites</td>
               <th className="p-2 w-1/6 min-w-[90px] text-right">Quantité</th>
+              <th className="p-2">User</th>
               <th className="p-2 w-20 text-right">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {materiels.map((item) => (
+            {filteredEquipements.map((item) => (
               <tr
                 key={item.id}
                 className="hover:bg-[#3d454d] transition duration-150 border-b border-[#4a4f55]"
               >
-                <td className="p-2 font-medium">{item.assetId}</td>
+                <td className="p-2 font-medium">{item.id}</td>
+                <td className="p-2 font-medium">{item.numeroDemande}</td>
+                <td className="p-2">{item.type}</td>
                 <td className="p-2">{item.marque}</td>
                 <td className="p-2">{item.model}</td>
-                <td className="p-2">{item.type}</td>
                 <td className="p-2">{item.description}</td>
+                <td className="p-2">{item.site}</td>
                 <td className="p-2 text-right">{item.quantity}</td>
+                <td className="p-2 text-right">{item.user.name}</td>
                 <td className="p-2 text-right flex justify-end gap-2">
                   <FaEdit
                     size={16}

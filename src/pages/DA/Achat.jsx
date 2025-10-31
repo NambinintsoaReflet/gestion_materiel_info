@@ -1,16 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash, FaSync } from "react-icons/fa";
+import { api } from "../../api/axios";
 
 const Achat = () => {
   const [search, setSearch] = useState("");
   const [etatFilter, setEtatFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
+    // GET EQUIPEMENTS
+    const fetchDA = async () => {
+      // try {
+      //   setLoading(true);
+      //   const { data } = await api.get("/achat");
+  
+      //   // setPublications(normalizePublications(data));
+      //   setEquipement(data);
+      //   console.log("equipements :", data);
+      // } catch (err) {
+      //   console.error(err); // trace l’erreur en console
+      //   setError("Erreur lors du chargement des événements."); // affiche un message utilisateur
+      // } finally {
+      //   setLoading(false); // désactive le loader quoi qu’il arrive (succès ou erreur)
+      // }
+    };
+  
+    useEffect(() => {
+      fetchDA();
+    }, []);
+
   const achats = [
-    { id: 1, numeroDemande: "DA-001", dateDemande: "2025-10-25", description: "Dell Latitude 7420 pour usage bureautique", etat: "En cours" },
-    { id: 2, numeroDemande: "DA-002", dateDemande: "2025-10-20", description: "HP LaserJet Pro M404", etat: "Livre" },
-    { id: 3, numeroDemande: "DA-003", dateDemande: "2025-10-18", description: "Cisco Catalyst 2960", etat: "En attente" },
-    { id: 4, numeroDemande: "DA-004", dateDemande: "2025-10-15", description: "Logitech MX Master 3", etat: "Annule" },
+    // { id: 1, numeroDemande: "DA-001", dateDemande: "2025-10-25", description: "Dell Latitude 7420 pour usage bureautique", etat: "En cours" },
+    // { id: 2, numeroDemande: "DA-002", dateDemande: "2025-10-20", description: "HP LaserJet Pro M404", etat: "Livre" },
+    // { id: 3, numeroDemande: "DA-003", dateDemande: "2025-10-18", description: "Cisco Catalyst 2960", etat: "En attente" },
+    // { id: 4, numeroDemande: "DA-004", dateDemande: "2025-10-15", description: "Logitech MX Master 3", etat: "Annule" },
   ];
 
   const etatBadge = (etat) => {
