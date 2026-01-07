@@ -1,147 +1,161 @@
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash, FaSync } from "react-icons/fa";
+import { FaSync } from "react-icons/fa";
 import { api } from "../../api/axios";
+import { useNavigate } from "react-router-dom";
 
 const Achat = () => {
+  const navigate = useNavigate();
+
+  /* ================= STATE ================= */
+  const [das, setDas] = useState([]);
   const [search, setSearch] = useState("");
-  const [etatFilter, setEtatFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [siteFilter, setSiteFilter] = useState("");
 
-    // GET EQUIPEMENTS
-    const fetchDA = async () => {
-      // try {
-      //   setLoading(true);
-      //   const { data } = await api.get("/achat");
-  
-      //   // setPublications(normalizePublications(data));
-      //   setEquipement(data);
-      //   console.log("equipements :", data);
-      // } catch (err) {
-      //   console.error(err); // trace l’erreur en console
-      //   setError("Erreur lors du chargement des événements."); // affiche un message utilisateur
-      // } finally {
-      //   setLoading(false); // désactive le loader quoi qu’il arrive (succès ou erreur)
-      // }
-    };
-  
-    useEffect(() => {
-      fetchDA();
-    }, []);
-
-  const achats = [
-    // { id: 1, numeroDemande: "DA-001", dateDemande: "2025-10-25", description: "Dell Latitude 7420 pour usage bureautique", etat: "En cours" },
-    // { id: 2, numeroDemande: "DA-002", dateDemande: "2025-10-20", description: "HP LaserJet Pro M404", etat: "Livre" },
-    // { id: 3, numeroDemande: "DA-003", dateDemande: "2025-10-18", description: "Cisco Catalyst 2960", etat: "En attente" },
-    // { id: 4, numeroDemande: "DA-004", dateDemande: "2025-10-15", description: "Logitech MX Master 3", etat: "Annule" },
-  ];
-
-  const etatBadge = (etat) => {
-    switch (etat) {
-      case "En cours": return "bg-yellow-400 text-black";
-      case "Livre": return "bg-green-500 text-white";
-      case "En attente": return "bg-blue-400 text-white";
-      case "Annule": return "bg-red-500 text-white";
-      default: return "bg-gray-400 text-white";
+  /* ================= FETCH DA ================= */
+  const fetchDA = async () => {
+    try {
+      const res = await api.get("/da");
+      setDas(res.data);
+    } catch (err) {
+      console.error("Erreur chargement DA", err);
     }
   };
 
-  const filteredAchats = achats.filter((item) => {
+
+  useEffect(() => {
+    fetchDA();
+  }, []);
+
+  /* ================= LOGIQUE PROGRESSION ================= */
+  const calculateProgress = (items) => {
+    if (!items || items.length === 0) return 0;
+    // Un article est considéré "traité" s'il est acheté (status 1) ou refusé (status 2)
+    const treatedItems = items.filter(item => item.status === 1 || item.status === 2).length;
+    return Math.round((treatedItems / items.length) * 100);
+  };
+
+  /* ================= FILTER ================= */
+  const filteredDas = das.filter((da) => {
     const matchesSearch =
-      item.numeroDemande.toLowerCase().includes(search.toLowerCase()) ||
-      item.description.toLowerCase().includes(search.toLowerCase());
-    const matchesEtat = etatFilter === "" || item.etat === etatFilter;
-    const matchesDate = dateFilter === "" || item.dateDemande === dateFilter;
-    return matchesSearch && matchesEtat && matchesDate;
+      da.numero_da.toLowerCase().includes(search.toLowerCase()) ||
+      da.demandeur.toLowerCase().includes(search.toLowerCase()) ||
+      da.site.toLowerCase().includes(search.toLowerCase());
+
+    const matchesDate = dateFilter === "" || da.date_reception === dateFilter;
+    const matchesSite = siteFilter === "" || da.site === siteFilter;
+
+    return matchesSearch && matchesDate && matchesSite;
   });
 
   const resetFilters = () => {
     setSearch("");
-    setEtatFilter("");
     setDateFilter("");
+    setSiteFilter("");
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap justify-end items-center gap-2 p-2">
+    <div className="p-2">
+      {/* FILTRES */}
+      <div className="flex flex-wrap justify-end items-center gap-2 mb-3">
         <input
           type="date"
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
-          className="rounded-md p-1 pl-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+          className="rounded-md p-1 px-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
         />
+
         <select
-          value={etatFilter}
-          onChange={(e) => setEtatFilter(e.target.value)}
-          className="rounded-md p-1 pl-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+          value={siteFilter}
+          onChange={(e) => setSiteFilter(e.target.value)}
+          className="rounded-md p-1 px-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
         >
-          <option value="">-- État --</option>
-          <option value="En cours">En cours</option>
-          <option value="Livre">Livré</option>
-          <option value="En attente">En attente</option>
-          <option value="Annule">Annulé</option>
+          <option value="">-- Site --</option>
+          <option value="HITA1">HITA1</option>
+          <option value="HITA2">HITA2</option>
+          <option value="HITA TANA">HITA TANA</option>
         </select>
+
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="rounded-md p-1 pl-2 outline-[0px] border border-gray-400 text-sm"
-          placeholder="Recherche..."
+          className="rounded-md p-1 px-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+          placeholder="Recherche (DA, site, demandeur)"
         />
+
         <button
           onClick={resetFilters}
-          className="flex items-center gap-1 cursor-pointer rounded-md p-1 pl-2 hover:bg-[#314254] border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+          className="flex items-center gap-1 rounded-md p-1 px-3 border border-gray-400 text-sm bg-[#343a40] text-gray-200 hover:bg-[#314254]"
         >
-          <FaSync /> Rafraîchir
+          <FaSync /> Réinitialiser
         </button>
       </div>
 
+      {/* TABLE */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
           <thead className="bg-[#3d454d] text-left">
             <tr>
-              <th className="p-2 w-1/5 min-w-[70px] font-medium">ID DA</th>
-              <th className="p-2">Date</th>
-              <th className="p-2">Description</th>
-              <th className="p-2">État</th>
-              <th className="p-2 w-20 text-right">Actions</th>
+              <th className="p-2 text-xs uppercase text-gray-400">N° DA</th>
+              <th className="p-2 text-xs uppercase text-gray-400">Date</th>
+              <th className="p-2 text-xs uppercase text-gray-400">Site</th>
+              <th className="p-2 text-xs uppercase text-gray-400">Demandeur</th>
+              <th className="p-2 text-xs uppercase text-gray-400 w-48">Status / Progression</th>
+              <th className="p-2 text-center text-xs uppercase text-gray-400">Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredAchats.length > 0 ? (
-              filteredAchats.map((item) => (
+            {filteredDas.map((da) => {
+              const percentage = calculateProgress(da.items);
+              
+              return (
                 <tr
-                  key={item.id}
-                  className="hover:bg-[#3d454d] transition duration-150 border-b border-[#4a4f55]"
+                  key={da.id}
+                  className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
                 >
-                  <td className="p-2 font-medium">{item.numeroDemande}</td>
-                  <td className="p-2">{item.dateDemande}</td>
-                  <td className="p-2">{item.description}</td>
+                  <td className="p-2 font-medium">{da.numero_da}</td>
+                  <td className="p-2">{da.date_reception}</td>
+                  <td className="p-2">{da.site}</td>
+                  <td className="p-2">{da.demandeur}</td>
                   <td className="p-2">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${etatBadge(item.etat)}`}
-                    >
-                      {item.etat.replace("_", " ")}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between text-[10px] mb-0.5">
+                        <span className={percentage === 100 ? "text-green-400" : "text-orange-400"}>
+                          {percentage === 100 ? "Terminé" : "En cours"}
+                        </span>
+                        <span>{percentage}%</span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-1.5">
+                        <div
+                          className={`h-1.5 rounded-full transition-all duration-500 ${
+                            percentage === 100 ? "bg-green-500" : "bg-blue-500"
+                          }`}
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
                   </td>
-                  <td className="p-2 text-right flex justify-end gap-2">
-                    <FaEdit
-                      size={16}
-                      className="text-green-400 cursor-pointer hover:text-green-300 transition"
-                      title="Modifier"
-                    />
-                    <FaTrash
-                      size={16}
-                      className="text-red-400 cursor-pointer hover:text-red-300 transition"
-                      title="Supprimer"
-                    />
+                  <td className="p-2 text-center">
+                    <button
+                      onClick={() => navigate(`/achat/${da.id}`)}
+                      className="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-white text-xs transition-colors shadow-sm"
+                    >
+                      Gérer
+                    </button>
+                    <button onClick={() => navigate(`/achat/${da.id}/imprimer`)} className="ml-2 bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-white text-xs transition-colors shadow-sm">
+                      Voir / Imprimer
+                    </button>
                   </td>
                 </tr>
-              ))
-            ) : (
+              );
+            })}
+
+            {filteredDas.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-center p-4 text-gray-400">
-                  Aucun résultat
+                <td colSpan="6" className="text-center p-4 text-gray-400 italic">
+                  Aucune demande d'achat trouvée
                 </td>
               </tr>
             )}

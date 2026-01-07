@@ -8,43 +8,45 @@ const Materiel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  //filtre
-  const [filterSite, setFilterSite] = useState(""); // filtre par site
-  const [searchTerm, setSearchTerm] = useState(""); // filtre par recherche
+  // Filtres
+  const [filterSite, setFilterSite] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
+  /** 🔍 Filtrage dynamique */
   const filteredEquipements = equipement.filter((item) => {
-    // 🔹 filtre site si sélectionné
     if (filterSite && item.site !== filterSite) return false;
 
-    // 🔹 filtre recherche (DA, type, marque, modèle, description)
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       const match =
-        (item.numeroDemande?.toLowerCase().includes(term) ?? false) ||
+        (item.demandeAchat?.numeroDemande?.toLowerCase().includes(term) ?? false) ||
         (item.type?.toLowerCase().includes(term) ?? false) ||
         (item.marque?.toLowerCase().includes(term) ?? false) ||
         (item.model?.toLowerCase().includes(term) ?? false) ||
         (item.description?.toLowerCase().includes(term) ?? false);
+
       if (!match) return false;
     }
 
     return true;
   });
 
-  // GET EQUIPEMENTS
+  /** 🔄 Charger les équipements */
   const fetchEquipement = async () => {
     try {
       setLoading(true);
+
       const { data } = await api.get("/equipements");
 
-      // setPublications(normalizePublications(data));
-      setEquipement(data);
-      console.log("equipements :", data);
+      // le backend retourne {status: "success", data: [...]}
+      setEquipement(data.data || []);
+
+      console.log("📦 Équipements chargés :", data.data);
     } catch (err) {
-      console.error(err); // trace l’erreur en console
-      setError("Erreur lors du chargement des événements."); // affiche un message utilisateur
+      console.error(err);
+      setError("Erreur lors du chargement des équipements.");
     } finally {
-      setLoading(false); // désactive le loader quoi qu’il arrive (succès ou erreur)
+      setLoading(false);
     }
   };
 
@@ -52,26 +54,27 @@ const Materiel = () => {
     fetchEquipement();
   }, []);
 
-  //Rafraichir
+  /** 🔁 Bouton rafraîchir */
   const handleRefresh = () => {
-    fetchEquipement(); // 🔹 recharge la liste depuis l'API
-    setFilterSite(""); // 🔹 reset filtre site
-    setSearchTerm(""); // 🔹 reset recherche
+    fetchEquipement();
+    setFilterSite("");
+    setSearchTerm("");
   };
 
-  // 🌀 États intermédiaires de rendu
-  if (loading) return <Chargement />; // si en cours de chargement, affiche le loader
-  if (error) return <p className="error-message">{error}</p>; // si erreur, affiche le message
+  /** ⏳ États intermédiaires */
+  if (loading) return <Chargement />;
+  if (error) return <p className="text-center text-red-400">{error}</p>;
 
   return (
     <div>
+      {/* Filtres */}
       <div className="flex justify-end p-2 gap-2">
         <select
           value={filterSite}
           onChange={(e) => setFilterSite(e.target.value)}
-          className="rounded-md p-1 pl-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+          className="rounded-md p-1 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
         >
-          <option value="">-- tout --</option>
+          <option value="">-- Tous --</option>
           <option value="HITA1">HITA1</option>
           <option value="HITA2">HITA2</option>
           <option value="HITA TANA">HITA TANA</option>
@@ -81,18 +84,19 @@ const Materiel = () => {
           type="search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="rounded-md p-1 pl-2 outline-[0px] border border-gray-400 text-sm"
+          className="rounded-md p-1 pl-2 border border-gray-400 text-sm"
           placeholder="Recherche..."
         />
 
         <button
           onClick={handleRefresh}
-          className="flex items-center gap-1 cursor-pointer rounded-md p-1 pl-2 hover:bg-[#314254] border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none"
+          className="flex items-center gap-1 rounded-md p-1 px-2 hover:bg-[#314254] border border-gray-400 text-sm bg-[#343a40] text-gray-200"
         >
           <FaSync /> Rafraîchir
         </button>
       </div>
 
+      {/* Tableau */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
           <thead className="bg-[#3d454d] text-left">
@@ -102,12 +106,12 @@ const Materiel = () => {
               <th className="p-2">Type</th>
               <th className="p-2">Marque</th>
               <th className="p-2">Modèle</th>
-
+              <th className="p-2">Config</th>
               <th className="p-2">Description</th>
-              <td className="p-2">Sites</td>
-              <th className="p-2 w-1/6 min-w-[90px] text-right">Quantité</th>
-              <th className="p-2">User</th>
-              <th className="p-2 w-20 text-right">Actions</th>
+              <th className="p-2">Site</th>
+              <th className="p-2 text-right">Quantité</th>
+              <th className="p-2">Utilisateur</th>
+              <th className="p-2 text-right">Actions</th>
             </tr>
           </thead>
 
@@ -116,26 +120,41 @@ const Materiel = () => {
               filteredEquipements.map((item) => (
                 <tr
                   key={item.id}
-                  className="hover:bg-[#3d454d] transition duration-150 border-b border-[#4a4f55]"
+                  className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
                 >
-                  <td className="p-2 font-medium">{item.id}</td>
-                  <td className="p-2 font-medium">{item.numeroDemande}</td>
+                  <td className="p-2">{item.id}</td>
+
+                  {/* DA (si existe) */}
+                  <td className="p-2">
+                    {item.demandeAchat?.numeroDemande ?? "Sans DA"}
+                  </td>
+
                   <td className="p-2">{item.type}</td>
                   <td className="p-2">{item.marque}</td>
                   <td className="p-2">{item.model}</td>
+
+                  {/* Config JSON (affichage simplifié) */}
+                  <td className="p-2">
+                    {item.config}
+                    
+                  </td>
+
                   <td className="p-2">{item.description}</td>
                   <td className="p-2">{item.site}</td>
                   <td className="p-2 text-right">{item.quantity}</td>
-                  <td className="p-2 text-right">{item.user.name}</td>
+
+                  {/* user */}
+                  <td className="p-2">{item.user?.name ?? "-"}</td>
+
                   <td className="p-2 text-right flex justify-end gap-2">
                     <FaEdit
                       size={16}
-                      className="text-green-400 cursor-pointer hover:text-green-300 transition"
+                      className="text-green-400 cursor-pointer hover:text-green-300"
                       title="Modifier"
                     />
                     <FaTrash
                       size={16}
-                      className="text-red-400 cursor-pointer hover:text-red-300 transition"
+                      className="text-red-400 cursor-pointer hover:text-red-300"
                       title="Supprimer"
                     />
                   </td>
@@ -143,7 +162,7 @@ const Materiel = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={10} className="text-center p-4 text-gray-400">
+                <td colSpan={11} className="text-center p-4 text-gray-400">
                   Aucun résultat
                 </td>
               </tr>

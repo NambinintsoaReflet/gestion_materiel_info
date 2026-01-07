@@ -9,7 +9,6 @@ import Materiel from "./pages/Materiels/Materiel";
 import LayoutMateriel from "./pages/Materiels/LayoutMateriel";
 import AjoutMateriel from "./pages/Materiels/AjoutMateriel";
 import Suivie from "./pages/Materiels/Suivie";
-import Personnel from "./pages/Personnel";
 import Rapport from "./pages/Rapport";
 import Parametre from "./pages/Parametre";
 import Aide from "./pages/Aide";
@@ -17,6 +16,11 @@ import Achat from "./pages/DA/Achat";
 import LayoutAchat from "./pages/DA/LayoutAchat";
 import AjoutAchat from "./pages/DA/AjoutAchat";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Personnel from "./pages/Personnels/Personnel";
+import LayoutPersonnel from "./pages/Personnels/LayoutPersonnel";
+import AjoutPersonnel from "./pages/Personnels/AjoutPersonnel";
+import AchatView from "./pages/DA/AchatView";
+import ImpressionDA from "./pages/DA/impressionDA";
 
 const queryClient = new QueryClient();
 
@@ -41,13 +45,22 @@ function App() {
                   <Route path="/achat" element={<LayoutAchat />}>
                     <Route index element={<Achat />} />
                     <Route path="/achat/ajout" element={<AjoutAchat />} />
+                     <Route path="/achat/:id" element={<AchatView />} />
+
                   </Route>
                   <Route path="/suivie" element={<Suivie />} />
-                  <Route path="/personnel" element={<Personnel />} />
+                  <Route path="/personnel" element={<LayoutPersonnel />}>
+                    <Route index element={<Personnel />} />
+                    <Route
+                      path="/personnel/ajout"
+                      element={<AjoutPersonnel />}
+                    />
+                  </Route>
                   <Route path="/reports" element={<Rapport />} />
                   <Route path="/settings" element={<Parametre />} />
                   <Route path="/help" element={<Aide />} />
                 </Route>
+               <Route path="/achat/:id/imprimer" element={<ImpressionDA />} />
               </Route>
             </Routes>
           </QueryClientProvider>
