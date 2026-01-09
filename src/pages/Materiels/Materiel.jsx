@@ -35,12 +35,8 @@ const Materiel = () => {
   const fetchEquipement = async () => {
     try {
       setLoading(true);
-
       const { data } = await api.get("/equipements");
-
-      // le backend retourne {status: "success", data: [...]}
       setEquipement(data.data || []);
-
       console.log("📦 Équipements chargés :", data.data);
     } catch (err) {
       console.error(err);
@@ -61,8 +57,6 @@ const Materiel = () => {
     setSearchTerm("");
   };
 
-  /** ⏳ États intermédiaires */
-  if (loading) return <Chargement />;
   if (error) return <p className="text-center text-red-400">{error}</p>;
 
   return (
@@ -92,7 +86,7 @@ const Materiel = () => {
           onClick={handleRefresh}
           className="flex items-center gap-1 rounded-md p-1 px-2 hover:bg-[#314254] border border-gray-400 text-sm bg-[#343a40] text-gray-200"
         >
-          <FaSync /> Rafraîchir
+          <FaSync className={loading ? "animate-spin" : ""} /> Rafraîchir
         </button>
       </div>
 
@@ -106,7 +100,6 @@ const Materiel = () => {
               <th className="p-2">Type</th>
               <th className="p-2">Marque</th>
               <th className="p-2">Modèle</th>
-              <th className="p-2">Config</th>
               <th className="p-2">Description</th>
               <th className="p-2">Site</th>
               <th className="p-2 text-right">Quantité</th>
@@ -116,36 +109,32 @@ const Materiel = () => {
           </thead>
 
           <tbody>
-            {filteredEquipements.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan="10" className="p-12 text-center text-gray-500">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    Chargement de l'inventaire...
+                  </div>
+                </td>
+              </tr>
+            ) : filteredEquipements.length > 0 ? (
               filteredEquipements.map((item) => (
                 <tr
                   key={item.id}
                   className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
                 >
                   <td className="p-2">{item.id}</td>
-
-                  {/* DA (si existe) */}
                   <td className="p-2">
                     {item.demandeAchat?.numeroDemande ?? "Sans DA"}
                   </td>
-
                   <td className="p-2">{item.type}</td>
                   <td className="p-2">{item.marque}</td>
                   <td className="p-2">{item.model}</td>
-
-                  {/* Config JSON (affichage simplifié) */}
-                  <td className="p-2">
-                    {item.config}
-                    
-                  </td>
-
                   <td className="p-2">{item.description}</td>
                   <td className="p-2">{item.site}</td>
                   <td className="p-2 text-right">{item.quantity}</td>
-
-                  {/* user */}
                   <td className="p-2">{item.user?.name ?? "-"}</td>
-
                   <td className="p-2 text-right flex justify-end gap-2">
                     <FaEdit
                       size={16}
@@ -162,7 +151,7 @@ const Materiel = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={11} className="text-center p-4 text-gray-400">
+                <td colSpan="10" className="text-center p-4 text-gray-400">
                   Aucun résultat
                 </td>
               </tr>

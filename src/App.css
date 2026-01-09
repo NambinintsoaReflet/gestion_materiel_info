@@ -11,10 +11,49 @@ body{
   font-family: roboto;
 }
 
+.bg-fond {
+  position: relative; /* Indispensable pour que le fond reste derrière */
+  min-height: 100vh;
+  width: 100%;
+  color: white; /* Pour que votre texte reste visible */
+  overflow: hidden; /* Pour éviter que le flou ne dépasse sur les côtés */
+}
+
+.bg-fond::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  
+  /* On déplace l'image et le sombre ici */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                    url("./assets/fong.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
+  /* Le flou s'applique UNIQUEMENT ici */
+  filter: blur(4px); 
+  
+  /* On agrandit un peu pour éviter les bords blancs du flou */
+  transform: scale(1.1); 
+  
+  z-index: 0; 
+}
+
+/* On s'assure que le contenu passe au dessus du fond */
+.bg-fond > * {
+  position: relative;
+  z-index: 1;
+}
+
+
 
 .stat-card {
   width: 230px;
-  border-radius: 2px; /* Bordures arrondies */
+  border-radius: 14px; /* Bordures arrondies */
   padding: 10px;
   color: white; /* Texte blanc par défaut */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombre subtile */
@@ -49,17 +88,17 @@ body{
 
 /* Couleurs spécifiques basées sur la prop 'color' */
 .stat-card.green {
-  background-color: #308f46; /* Exemple vert */
+  background-color: #4face421; /* Exemple vert */
 }
 
 .stat-card.blue {
-  background-color: #346ca9; /* Exemple bleu */
+  background-color: #4face421; /* Exemple bleu */
 }
 
 .stat-card.orange {
-  background-color: #c5732e; /* Exemple orange */
+  background-color: #4face421; /* Exemple orange */
 }
 
 .stat-card.red {
-  background-color: #b53945; /* Exemple rouge */
+  background-color: #4face421; /* Exemple rouge */
 }

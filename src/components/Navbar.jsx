@@ -17,7 +17,7 @@ function Navbar() {
         <div className="p-4 fixed w-full bg-[#282c34] z-50">
           <div className="flex w-full items-center gap-3 px-4 py-1 bg-[#20232a] rounded-md shadow-md">
             <img src={logo} alt="Logo" className="w-10 h-auto" />
-            <h1 className="font-semibold text-white">IT MANAGER</h1>
+            <h1 className="font-semibold text-[#61dafb]">IT MANAGER</h1>
 
             <div
               className="ml-auto flex items-center gap-3 cursor-pointer text-white"

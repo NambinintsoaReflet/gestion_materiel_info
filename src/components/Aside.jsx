@@ -3,6 +3,7 @@ import { FaBuysellads, FaChartBar, FaCog, FaTachometerAlt, FaUsers } from "react
 import { IoIosHelpCircleOutline } from "react-icons/io";
 import { SiMaterialformkdocs } from "react-icons/si";
 import { MdOutlineManageHistory } from "react-icons/md";
+import { MdArticle } from "react-icons/md";
 
 const menuItems = [
   { to: "/", icon: <FaTachometerAlt className="p-1" />, label: "Dashboard" },
@@ -16,7 +17,11 @@ const menuItems = [
     icon: <FaBuysellads className="p-1" />,
     label: "DA",
   },
-  
+      {
+    to: "/article",
+    icon: <MdArticle  className="p-1" />,
+    label: "Articles",
+  },
   {
     to: "/suivie",
     icon: <MdOutlineManageHistory className="p-1" />,

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import CustomSelect from "../../components/CustomSelect";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/axios";
+import Input from "../../components/Input";
 
 const AjoutMateriel = () => {
   const navigate = useNavigate();
@@ -24,14 +25,31 @@ const AjoutMateriel = () => {
   });
 
   const [selectedIdDA, setSelectedIdDA] = useState(null);
+  const [selectedDAItems, setSelectedDAItems] = useState([]);
   const [isSansDA, setIsSansDA] = useState(false);
+  const [das, setDas] = useState([]);
 
   // Tableau des DA (à connecter plus tard)
-  const da = [];
+  /* ================= FETCH DA ================= */
+  const fetchDA = async () => {
+    try {
+      const res = await api.get("/da").finally(() => setLoading(false));
+      setDas(res.data);
+    } catch (err) {
+      console.error("Erreur chargement DA", err);
+    }
+  };
 
-  const options = da.map((a) => ({
+  useEffect(() => {
+    fetchDA();
+  }, []);
+
+  console.log("📌 DA disponibles :", das);
+  // const das = [];
+
+  const options = das.map((a) => ({
     value: a.id,
-    label: `${a.demande_achat_id} - ${a.description}`,
+    label: `${a.numero_da} - ${a.site}`,
   }));
 
   /** 🔹 Gestion générique des champs */
@@ -41,72 +59,71 @@ const AjoutMateriel = () => {
   };
 
   /** 🔹 Champs spéciaux selon le type de matériel */
-const renderConfigFields = () => {
-  switch (formData.type) {
-    case "Ordinateur":
-      return (
-        <div>
-          <label className="block text-sm mb-1">Configuration</label>
-          <input
-            name="config"
-            placeholder="Intel i5 / 8Go RAM / SSD 256Go"
-            value={formData.config}
-            onChange={handleChange}
-            className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
-          />
-        </div>
-      );
-
-    case "Imprimante":
-      return (
-        <div>
-          <label className="block text-sm mb-1">Vitesse (ppm)</label>
-          <input
-            name="config"
-            placeholder="Ex: 30 ppm"
-            value={formData.config}
-            onChange={handleChange}
-            className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
-          />
-        </div>
-      );
-
-    case "Onduleur":
-      return (
-        <div>
-          <label className="block text-sm mb-1">Autonomie (minutes)</label>
-          <input
-            name="config"
-            placeholder="Ex: 10 minutes"
-            value={formData.config}
-            onChange={handleChange}
-            className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
-          />
-        </div>
-      );
-
-    case "Ecran":
-      return (
-        <>
+  const renderConfigFields = () => {
+    switch (formData.type) {
+      case "Ordinateur":
+        return (
           <div>
-            <label className="block text-sm mb-1">Taille (pouces)</label>
+            <label className="block text-sm mb-1">Configuration</label>
             <input
-              type="text"
               name="config"
-              placeholder="Ex: 24 pouces / Full HD"
+              placeholder="Intel i5 / 8Go RAM / SSD 256Go"
               value={formData.config}
               onChange={handleChange}
               className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
             />
           </div>
-        </>
-      );
+        );
 
-    default:
-      return null;
-  }
-};
+      case "Imprimante":
+        return (
+          <div>
+            <label className="block text-sm mb-1">Vitesse (ppm)</label>
+            <input
+              name="config"
+              placeholder="Ex: 30 ppm"
+              value={formData.config}
+              onChange={handleChange}
+              className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
+            />
+          </div>
+        );
 
+      case "Onduleur":
+        return (
+          <div>
+            <label className="block text-sm mb-1">Autonomie (minutes)</label>
+            <input
+              name="config"
+              placeholder="Ex: 10 minutes"
+              value={formData.config}
+              onChange={handleChange}
+              className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
+            />
+          </div>
+        );
+
+      case "Ecran":
+        return (
+          <>
+            <div>
+              <label className="block text-sm mb-1">Taille (pouces)</label>
+              <input
+                type="text"
+                name="config"
+                placeholder="Ex: 24 pouces / Full HD"
+                value={formData.config}
+                onChange={handleChange}
+                className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
+              />
+            </div>
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   /** 🔹 Validation + soumission */
   const handleSubmit = async (e) => {
@@ -119,7 +136,7 @@ const renderConfigFields = () => {
     }
 
     // Validation champ obligatoire
-    if (!formData.model.trim() || !formData.type.trim() || !formData.site) {
+    if ( !formData.type.trim() || !formData.site) {
       alert("Veuillez remplir tous les champs obligatoires.");
       return;
     }
@@ -148,7 +165,6 @@ const renderConfigFields = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-
           {/* SECTION DEMANDE D'ACHAT */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
@@ -162,7 +178,10 @@ const renderConfigFields = () => {
                     setIsSansDA(checked);
                     if (checked) {
                       setSelectedIdDA(null);
-                      setFormData((prev) => ({ ...prev, demande_achat_id: "" }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        demande_achat_id: "",
+                      }));
                     }
                   }}
                   className="w-5 h-5 accent-blue-500"
@@ -178,7 +197,7 @@ const renderConfigFields = () => {
                   isSansDA ? "opacity-40 pointer-events-none" : ""
                 }`}
               >
-                <CustomSelect
+                {/* <CustomSelect
                   options={options}
                   placeholder="Ex: DA-001"
                   value={options.find((o) => o.value === selectedIdDA) || null}
@@ -187,8 +206,29 @@ const renderConfigFields = () => {
                     setFormData((prev) => ({
                       ...prev,
                       demande_achat_id:
-                        da.find((d) => d.id === option.value)?.demande_achat_id ||
-                        "",
+                        das.find((d) => d.id === option.value)?.numero_da || "",
+                    }));
+                  }}
+                /> */}
+                <CustomSelect
+                  options={options}
+                  placeholder="Ex: DA-001"
+                  value={options.find((o) => o.value === selectedIdDA) || null}
+                  onChange={(option) => {
+                    // 1. Trouver la DA correspondante dans la liste des DA chargées
+                    const selectedDA = das.find((d) => d.id === option.value);
+
+                    setSelectedIdDA(option.value);
+
+                    // Récupération des articles de cette DA
+                    const items = selectedDA?.items || [];
+                    setSelectedDAItems(items);
+
+                    // 2. Mettre à jour le formulaire avec le numéro de DA ET le site
+                    setFormData((prev) => ({
+                      ...prev,
+                      numero_da: selectedDA?.numero_da || "",
+                      site: selectedDA?.site || prev.site, // On remplit le site automatiquement
                     }));
                   }}
                 />
@@ -197,18 +237,17 @@ const renderConfigFields = () => {
 
             <div>
               <label className="block text-sm mb-1">Date de réception</label>
-              <input
+              <Input
                 type="date"
                 name="dateReception"
                 value={formData.dateReception}
                 onChange={handleChange}
-                className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
               />
             </div>
 
             <div>
               <label className="block text-sm mb-1">Site</label>
-              <select
+              {/* <select
                 name="site"
                 value={formData.site}
                 onChange={handleChange}
@@ -219,34 +258,82 @@ const renderConfigFields = () => {
                 <option value="HITA1">HITA1</option>
                 <option value="HITA2">HITA2</option>
                 <option value="HITA TANA">HITA TANA</option>
+              </select> */}
+
+              <select
+                name="site"
+                value={formData.site} // ✅ Très important pour le remplissage automatique
+                onChange={handleChange}
+                className={`w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 ${
+                  !isSansDA && selectedIdDA
+                    ? "opacity-60 cursor-not-allowed"
+                    : ""
+                }`}
+                required
+                disabled={!isSansDA && selectedIdDA} // ✅ Optionnel : bloque le champ si une DA est choisie
+              >
+                <option value="">-- Sélectionnez --</option>
+                <option value="HITA1">HITA1</option>
+                <option value="HITA2">HITA2</option>
+                <option value="HITA TANA">HITA TANA</option>
               </select>
+              {!isSansDA && selectedIdDA && (
+                <p className="text-[10px] text-blue-400 mt-1 italic">
+                  * Lié à la DA sélectionnée
+                </p>
+              )}
             </div>
           </div>
 
           {/* SECTION INFORMATIONS MATERIEL */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm mb-1">Type *</label>
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
-                required
-              >
-                <option value="">-- Sélectionnez --</option>
-                <option value="Ordinateur">Ordinateur</option>
-                <option value="Imprimante">Imprimante</option>
-                <option value="Onduleur">Onduleur</option>
-                <option value="Ecran">Ecran</option>
-              </select>
+              <div>
+                <label className="block text-sm mb-1">
+                  {isSansDA ? "Type de matériel *" : "Article de la DA *"}
+                </label>
+                <select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 text-white outline-none"
+                  required
+                >
+                  <option value="">-- Sélectionnez --</option>
+
+                  {isSansDA ? (
+                    /* Options par défaut si pas de DA */
+                    <>
+                      <option value="Ordinateur">Ordinateur</option>
+                      <option value="Imprimante">Imprimante</option>
+                      <option value="Onduleur">Onduleur</option>
+                      <option value="Ecran">Ecran</option>
+                    </>
+                  ) : (
+                    /* Options basées sur les articles de la DA sélectionnée */
+                    selectedDAItems.map((item) => (
+                      <option key={item.id} value={item.libelle}>
+                        {item.libelle}
+                      </option>
+                    ))
+                  )}
+                </select>
+
+                {!isSansDA && selectedDAItems.length === 0 && !selectedIdDA && (
+                  <p className="text-[10px] text-orange-400 mt-1">
+                    ⚠️ Sélectionnez d'abord une DA pour voir les articles.
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Marque / Modèle / Série */}
             {["marque", "model", "numeroSerie"].map((field) => (
               <div key={field}>
                 <label className="block text-sm mb-1">
-                  {field === "model" ? "Modèle *" : field.charAt(0).toUpperCase() + field.slice(1)}
+                  {field === "model"
+                    ? "Modèle "
+                    : field.charAt(0).toUpperCase() + field.slice(1)}
                 </label>
                 <input
                   name={field}
@@ -260,7 +347,7 @@ const renderConfigFields = () => {
                       : "SN-4587-LNV-742"
                   }
                   className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
-                  required={field === "model"}
+          
                 />
               </div>
             ))}
@@ -273,24 +360,22 @@ const renderConfigFields = () => {
 
             <div>
               <label className="block text-sm mb-1">Quantité</label>
-              <input
+              <Input
                 type="number"
                 name="quantity"
                 value={formData.quantity}
                 onChange={handleChange}
-                min="1"
-                className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
               />
             </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm mb-1">Description</label>
-              <input
+              <Input
+                type="text"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Ex: Pour usage bureautique"
-                className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
               />
             </div>
           </div>
@@ -331,7 +416,6 @@ const renderConfigFields = () => {
               )}
             </button>
           </div>
-
         </form>
       </div>
     </div>

@@ -21,6 +21,10 @@ import LayoutPersonnel from "./pages/Personnels/LayoutPersonnel";
 import AjoutPersonnel from "./pages/Personnels/AjoutPersonnel";
 import AchatView from "./pages/DA/AchatView";
 import ImpressionDA from "./pages/DA/impressionDA";
+import Article from "./pages/Articles/Article";
+import LayoutArticle from "./pages/Articles/LayoutArticle";
+import EntreeStock from "./pages/Articles/EntreeStock";
+import SortieStock from "./pages/Articles/SortieStock";
 
 const queryClient = new QueryClient();
 
@@ -45,8 +49,12 @@ function App() {
                   <Route path="/achat" element={<LayoutAchat />}>
                     <Route index element={<Achat />} />
                     <Route path="/achat/ajout" element={<AjoutAchat />} />
-                     <Route path="/achat/:id" element={<AchatView />} />
-
+                    <Route path="/achat/:id" element={<AchatView />} />
+                  </Route>
+                  <Route path="/article" element={<LayoutArticle />}>
+                    <Route index element={<Article />} />
+                    <Route path="/article/entree" element={<EntreeStock />} />
+                    <Route path="/article/sortie" element={<SortieStock />} />
                   </Route>
                   <Route path="/suivie" element={<Suivie />} />
                   <Route path="/personnel" element={<LayoutPersonnel />}>
@@ -60,7 +68,7 @@ function App() {
                   <Route path="/settings" element={<Parametre />} />
                   <Route path="/help" element={<Aide />} />
                 </Route>
-               <Route path="/achat/:id/imprimer" element={<ImpressionDA />} />
+                <Route path="/achat/:id/imprimer" element={<ImpressionDA />} />
               </Route>
             </Routes>
           </QueryClientProvider>

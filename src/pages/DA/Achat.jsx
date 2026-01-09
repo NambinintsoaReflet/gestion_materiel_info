@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { FaSync } from "react-icons/fa";
 import { api } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import Chargement from "../../components/Chargement";
 
 const Achat = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   /* ================= STATE ================= */
   const [das, setDas] = useState([]);
@@ -15,13 +17,13 @@ const Achat = () => {
   /* ================= FETCH DA ================= */
   const fetchDA = async () => {
     try {
-      const res = await api.get("/da");
+      setLoading(true);
+      const res = await api.get("/da").finally(() => setLoading(false));
       setDas(res.data);
     } catch (err) {
       console.error("Erreur chargement DA", err);
     }
   };
-
 
   useEffect(() => {
     fetchDA();
@@ -31,7 +33,9 @@ const Achat = () => {
   const calculateProgress = (items) => {
     if (!items || items.length === 0) return 0;
     // Un article est considéré "traité" s'il est acheté (status 1) ou refusé (status 2)
-    const treatedItems = items.filter(item => item.status === 1 || item.status === 2).length;
+    const treatedItems = items.filter(
+      (item) => item.status === 1 || item.status === 2
+    ).length;
     return Math.round((treatedItems / items.length) * 100);
   };
 
@@ -97,64 +101,93 @@ const Achat = () => {
         <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
           <thead className="bg-[#3d454d] text-left">
             <tr>
-              <th className="p-2 text-xs uppercase text-gray-400">N° DA</th>
-              <th className="p-2 text-xs uppercase text-gray-400">Date</th>
-              <th className="p-2 text-xs uppercase text-gray-400">Site</th>
-              <th className="p-2 text-xs uppercase text-gray-400">Demandeur</th>
-              <th className="p-2 text-xs uppercase text-gray-400 w-48">Status / Progression</th>
-              <th className="p-2 text-center text-xs uppercase text-gray-400">Actions</th>
+              <th className="p-2">N° DA</th>
+              <th className="p-2">Date</th>
+              <th className="p-2">Site</th>
+              <th className="p-2">Demandeur</th>
+              <th className="p-2 w-48">
+                Status / Progression
+              </th>
+              <th className="p-2 text-center">
+                Actions
+              </th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredDas.map((da) => {
-              const percentage = calculateProgress(da.items);
-              
-              return (
-                <tr
-                  key={da.id}
-                  className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
-                >
-                  <td className="p-2 font-medium">{da.numero_da}</td>
-                  <td className="p-2">{da.date_reception}</td>
-                  <td className="p-2">{da.site}</td>
-                  <td className="p-2">{da.demandeur}</td>
-                  <td className="p-2">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex justify-between text-[10px] mb-0.5">
-                        <span className={percentage === 100 ? "text-green-400" : "text-orange-400"}>
-                          {percentage === 100 ? "Terminé" : "En cours"}
-                        </span>
-                        <span>{percentage}%</span>
+            {loading ? (
+              /* État de chargement : On affiche une ligne qui occupe toute la largeur */
+            <tr>
+                <td colSpan="6" className="p-12 text-center text-gray-500">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    Chargement de l'inventaire...
+                  </div>
+                </td>
+              </tr>
+            ) : filteredDas.length > 0 ? (
+              /* Si des données existent, on les affiche */
+              filteredDas.map((da) => {
+                const percentage = calculateProgress(da.items);
+                return (
+                  <tr
+                    key={da.id}
+                    className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
+                  >
+                    <td className="p-2 font-medium">{da.numero_da}</td>
+                    <td className="p-2">{da.date_reception}</td>
+                    <td className="p-2">{da.site}</td>
+                    <td className="p-2">{da.demandeur}</td>
+                    <td className="p-2">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex justify-between text-[10px] mb-0.5">
+                          <span
+                            className={
+                              percentage === 100
+                                ? "text-green-400"
+                                : "text-orange-400"
+                            }
+                          >
+                            {percentage === 100 ? "Terminé" : "En cours"}
+                          </span>
+                          <span>{percentage}%</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-1.5">
+                          <div
+                            className={`h-1.5 rounded-full transition-all duration-500 ${
+                              percentage === 100
+                                ? "bg-green-500"
+                                : "bg-blue-500"
+                            }`}
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-1.5">
-                        <div
-                          className={`h-1.5 rounded-full transition-all duration-500 ${
-                            percentage === 100 ? "bg-green-500" : "bg-blue-500"
-                          }`}
-                          style={{ width: `${percentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-2 text-center">
-                    <button
-                      onClick={() => navigate(`/achat/${da.id}`)}
-                      className="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-white text-xs transition-colors shadow-sm"
-                    >
-                      Gérer
-                    </button>
-                    <button onClick={() => navigate(`/achat/${da.id}/imprimer`)} className="ml-2 bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-white text-xs transition-colors shadow-sm">
-                      Voir / Imprimer
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-
-            {filteredDas.length === 0 && (
+                    </td>
+                    <td className="p-2 text-center">
+                      <button
+                        onClick={() => navigate(`/achat/${da.id}`)}
+                        className="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-white text-xs transition-colors shadow-sm"
+                      >
+                        Gérer
+                      </button>
+                      <button
+                        onClick={() => navigate(`/achat/${da.id}/imprimer`)}
+                        className="ml-2 bg-gray-600 hover:bg-gray-500 px-3 py-1 rounded text-white text-xs transition-colors shadow-sm"
+                      >
+                        Voir / Imprimer
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              /* Si le chargement est fini mais qu'il n'y a aucune donnée */
               <tr>
-                <td colSpan="6" className="text-center p-4 text-gray-400 italic">
+                <td
+                  colSpan="6"
+                  className="text-center p-8 text-gray-400 italic"
+                >
                   Aucune demande d'achat trouvée
                 </td>
               </tr>

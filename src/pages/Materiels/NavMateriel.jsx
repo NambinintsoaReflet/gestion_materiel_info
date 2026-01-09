@@ -10,7 +10,7 @@ const NavMateriel = () => {
   ];
 
   return (
-    <nav className="py-3">
+    <nav className="py-3 border-b border-[#4a4f55]">
       <ul className="flex gap-8">
         {MaterielMenuItems.map((item, index) => (
           <li key={index}>
