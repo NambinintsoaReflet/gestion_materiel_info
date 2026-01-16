@@ -34,7 +34,7 @@ const Achat = () => {
     if (!items || items.length === 0) return 0;
     // Un article est considéré "traité" s'il est acheté (status 1) ou refusé (status 2)
     const treatedItems = items.filter(
-      (item) => item.status === 1 || item.status === 2
+      (item) => Number(item.status) === 1 || Number(item.status) === 2
     ).length;
     return Math.round((treatedItems / items.length) * 100);
   };
@@ -97,7 +97,7 @@ const Achat = () => {
       </div>
 
       {/* TABLE */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto custom-scrollbar overflow-y-auto max-h-[390px] rounded-xl border border-white/10 shadow-2xl bg-[#282c34a3] backdrop-blur-md">
         <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
           <thead className="bg-[#3d454d] text-left">
             <tr>
@@ -135,7 +135,7 @@ const Achat = () => {
                     className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
                   >
                     <td className="p-2 font-medium">{da.numero_da}</td>
-                    <td className="p-2">{da.date_reception}</td>
+                    <td className="p-2">{da.date_da}</td>
                     <td className="p-2">{da.site}</td>
                     <td className="p-2">{da.demandeur}</td>
                     <td className="p-2">

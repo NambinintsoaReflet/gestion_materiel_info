@@ -10,6 +10,10 @@ const AjoutMateriel = () => {
   const [loading, setLoading] = useState(false);
   const today = new Date().toISOString().split("T")[0];
 
+  const [selectedIdDA, setSelectedIdDA] = useState(null);
+  const [selectedDAItems, setSelectedDAItems] = useState([]);
+  const [isSansDA, setIsSansDA] = useState(false);
+
   // Formulaire principal
   const [formData, setFormData] = useState({
     demande_achat_id: "",
@@ -22,17 +26,13 @@ const AjoutMateriel = () => {
     config: "",
     description: "",
     site: "",
+    etat: "",
   });
 
-  const [selectedIdDA, setSelectedIdDA] = useState(null);
-  const [selectedDAItems, setSelectedDAItems] = useState([]);
-  const [isSansDA, setIsSansDA] = useState(false);
   const [das, setDas] = useState([]);
-
-  // Tableau des DA (à connecter plus tard)
-  /* ================= FETCH DA ================= */
   const fetchDA = async () => {
     try {
+      setLoading(true);
       const res = await api.get("/da").finally(() => setLoading(false));
       setDas(res.data);
     } catch (err) {
@@ -40,24 +40,67 @@ const AjoutMateriel = () => {
     }
   };
 
+  const [equipements, setEquipements] = useState([]);
+  const fetchEquipement = async () => {
+    try {
+      setLoading(true);
+      const res = await api
+        .get("/equipements")
+        .finally(() => setLoading(false));
+      setEquipements(res.data);
+      console.log("📦 Équipements chargés :", res.data);
+    } catch (err) {
+      console.error("Erreur chargement Equipements", err);
+    }
+  };
+
   useEffect(() => {
     fetchDA();
+    fetchEquipement();
   }, []);
 
   console.log("📌 DA disponibles :", das);
-  // const das = [];
+  console.log("📌 Équipements chargés :", equipements);
 
-  const options = das.map((a) => ({
-    value: a.id,
-    label: `${a.numero_da} - ${a.site}`,
-  }));
+  // options = liste des DA avec au moins un article "restant" ET validé (status 1)
+  const options = das
+    .filter((da) => {
+      // On ne garde que les DA qui ont au moins un article répondant aux critères
+      const aEncoreDesArticlesDisponibles = da.items.some((item) => {
+        // 1. CONDITION : Catégorie Immobilisation uniquement
+        if (item.categorie !== "Immobilisation") return false;
+
+        // 2. CONDITION : L'article doit être validé (status === 1)
+        // On ajoute Number() au cas où le status arrive en string
+        if (Number(item.status) !== 1) return false;
+
+        // 3. CONDITION : Calcul du reste à saisir
+        const dejaSaisis = equipements
+          .filter(
+            (e) =>
+              (e.demande_achat_id === da.id || e.numero_da === da.numero_da) &&
+              e.type === item.libelle
+          )
+          .reduce((sum, e) => sum + Number(e.quantity), 0);
+
+        // L'article est disponible s'il reste au moins 1 unité à saisir
+        return dejaSaisis < item.quantite;
+      });
+
+      return aEncoreDesArticlesDisponibles;
+    })
+    .map((a) => ({
+      value: a.id,
+      label: `${a.numero_da} - ${a.site}`,
+    }));
+
+  console.log(options);
 
   /** 🔹 Gestion générique des champs */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
   /** 🔹 Champs spéciaux selon le type de matériel */
   const renderConfigFields = () => {
     switch (formData.type) {
@@ -136,7 +179,7 @@ const AjoutMateriel = () => {
     }
 
     // Validation champ obligatoire
-    if ( !formData.type.trim() || !formData.site) {
+    if (!formData.type.trim() || !formData.site) {
       alert("Veuillez remplir tous les champs obligatoires.");
       return;
     }
@@ -144,11 +187,12 @@ const AjoutMateriel = () => {
     setLoading(true);
 
     try {
-      console.log("📌 Matériel envoyé :", formData);
+      console.log("📌 Matériel envoyé :", formData, selectedIdDA);
+
       const res = await api.post("/equipements", formData);
-      console.log("📌 Matériel envoyé :", formData);
       alert("Équipement ajouté avec succès !");
       navigate("/materiels");
+      console.log("✅ Équipement ajouté :", res.data);
     } catch (err) {
       console.error(err);
       alert("Erreur lors de l’ajout !");
@@ -156,6 +200,25 @@ const AjoutMateriel = () => {
       setLoading(false);
     }
   };
+
+  // SAISIE DU QUANTITE MAX
+  const selectedArticleData = selectedDAItems.find(
+    (it) => it.libelle === formData.type
+  );
+
+  // Calcul du reste pour l'article actuellement choisi dans le select
+  const qteDejaSaisie = equipements
+    .filter(
+      (e) =>
+        (e.demande_achat_id === selectedIdDA ||
+          e.numero_da === formData.numero_da) &&
+        e.type === formData.type
+    )
+    .reduce((sum, e) => sum + Number(e.quantity), 0);
+
+  const maxAutorise = selectedArticleData
+    ? selectedArticleData.quantite - qteDejaSaisie
+    : 999;
 
   return (
     <div className="p-4">
@@ -197,19 +260,6 @@ const AjoutMateriel = () => {
                   isSansDA ? "opacity-40 pointer-events-none" : ""
                 }`}
               >
-                {/* <CustomSelect
-                  options={options}
-                  placeholder="Ex: DA-001"
-                  value={options.find((o) => o.value === selectedIdDA) || null}
-                  onChange={(option) => {
-                    setSelectedIdDA(option.value);
-                    setFormData((prev) => ({
-                      ...prev,
-                      demande_achat_id:
-                        das.find((d) => d.id === option.value)?.numero_da || "",
-                    }));
-                  }}
-                /> */}
                 <CustomSelect
                   options={options}
                   placeholder="Ex: DA-001"
@@ -227,8 +277,10 @@ const AjoutMateriel = () => {
                     // 2. Mettre à jour le formulaire avec le numéro de DA ET le site
                     setFormData((prev) => ({
                       ...prev,
+                      demande_achat_id: selectedDA?.id || "",
+                      // On garde numero_da si vous en avez besoin pour l'affichage ou d'autres calculs
                       numero_da: selectedDA?.numero_da || "",
-                      site: selectedDA?.site || prev.site, // On remplit le site automatiquement
+                      site: selectedDA?.site || prev.site,
                     }));
                   }}
                 />
@@ -247,19 +299,6 @@ const AjoutMateriel = () => {
 
             <div>
               <label className="block text-sm mb-1">Site</label>
-              {/* <select
-                name="site"
-                value={formData.site}
-                onChange={handleChange}
-                className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
-                required
-              >
-                <option value="">-- Sélectionnez --</option>
-                <option value="HITA1">HITA1</option>
-                <option value="HITA2">HITA2</option>
-                <option value="HITA TANA">HITA TANA</option>
-              </select> */}
-
               <select
                 name="site"
                 value={formData.site} // ✅ Très important pour le remplissage automatique
@@ -310,12 +349,35 @@ const AjoutMateriel = () => {
                       <option value="Ecran">Ecran</option>
                     </>
                   ) : (
-                    /* Options basées sur les articles de la DA sélectionnée */
-                    selectedDAItems.map((item) => (
-                      <option key={item.id} value={item.libelle}>
-                        {item.libelle}
-                      </option>
-                    ))
+                    !isSansDA &&
+                    selectedDAItems
+                      .filter(
+                        (item) =>
+                          item.categorie === "Immobilisation" &&
+                          Number(item.status) === 1 // 🔹 On ne garde que les articles validés
+                      )
+                      .map((item) => {
+                        // 1. Calculer combien on a déjà enregistré pour cet article précis
+                        const dejaEnregistres = equipements
+                          .filter(
+                            (e) =>
+                              (e.demande_achat_id === selectedIdDA ||
+                                e.numero_da === formData.numero_da) &&
+                              e.type === item.libelle
+                          )
+                          .reduce((sum, e) => sum + Number(e.quantity), 0);
+
+                        const reste = item.quantite - dejaEnregistres;
+
+                        // 2. Si le quota est atteint ou si l'article n'a plus de reste, on cache
+                        if (reste <= 0) return null;
+
+                        return (
+                          <option key={item.id} value={item.libelle}>
+                            {item.libelle} (Reste : {reste})
+                          </option>
+                        );
+                      })
                   )}
                 </select>
 
@@ -347,32 +409,67 @@ const AjoutMateriel = () => {
                       : "SN-4587-LNV-742"
                   }
                   className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500"
-          
                 />
               </div>
             ))}
           </div>
 
           {/* SECTION CONFIG / DESCRIPTION */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Champs dynamiques selon le type */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
             {renderConfigFields()}
 
-            <div>
-              <label className="block text-sm mb-1">Quantité</label>
+            {/* Quantité : occupe 1 colonne */}
+            <div className="flex flex-col">
+              <label className="block text-sm mb-1 text-gray-400">
+                Quantité
+              </label>
               <Input
                 type="number"
                 name="quantity"
+                min="1"
+                max={isSansDA ? 999 : maxAutorise} // Bloque la flèche du haut
                 value={formData.quantity}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  // Empêche de taper un chiffre trop haut au clavier
+                  if (!isSansDA && val > maxAutorise) {
+                    alert(
+                      `Action refusée : Il ne reste que ${maxAutorise} à enregistrer.`
+                    );
+                    return;
+                  }
+                  handleChange(e);
+                }}
               />
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm mb-1">Description</label>
+            {/* Etat : occupe 1 colonne pour équilibrer la ligne si possible */}
+            <div className="flex flex-col">
+              <label className="block text-sm mb-1 text-gray-400">Etat</label>
+              <select
+                name="etat"
+                id="etat"
+                value={formData.etat}
+                onChange={handleChange}
+                className="w-full p-[9px] text-sm rounded bg-[#3d454d] border border-gray-600 focus:border-blue-500 outline-none transition-all"
+              >
+                <option value="">-- Sélectionnez --</option>
+                <option value="Neuf">Neuf</option>
+                <option value="En Service">En Service</option>
+                <option value="En Panne">En Panne</option>
+                <option value="Hors Service">Hors Service</option>
+              </select>
+            </div>
+
+            {/* Description : occupe 2 colonnes pour laisser de la place au texte */}
+            <div className="md:col-span-2 flex flex-col">
+              <label className="block text-sm mb-1 text-gray-400">
+                Description
+              </label>
               <Input
                 type="text"
                 name="description"
+                className="w-full"
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Ex: Pour usage bureautique"

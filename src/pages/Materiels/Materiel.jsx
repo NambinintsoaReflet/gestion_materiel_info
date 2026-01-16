@@ -19,7 +19,8 @@ const Materiel = () => {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       const match =
-        (item.demandeAchat?.numeroDemande?.toLowerCase().includes(term) ?? false) ||
+        (item.demandeAchat?.numeroDemande?.toLowerCase().includes(term) ??
+          false) ||
         (item.type?.toLowerCase().includes(term) ?? false) ||
         (item.marque?.toLowerCase().includes(term) ?? false) ||
         (item.model?.toLowerCase().includes(term) ?? false) ||
@@ -36,8 +37,8 @@ const Materiel = () => {
     try {
       setLoading(true);
       const { data } = await api.get("/equipements");
-      setEquipement(data.data || []);
-      console.log("📦 Équipements chargés :", data.data);
+      setEquipement(data || []);
+      console.log("📦 Équipements chargés :", data);
     } catch (err) {
       console.error(err);
       setError("Erreur lors du chargement des équipements.");
@@ -91,19 +92,20 @@ const Materiel = () => {
       </div>
 
       {/* Tableau */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto custom-scrollbar overflow-y-auto max-h-[390px] rounded-xl border border-white/10 shadow-2xl bg-[#282c34a3] backdrop-blur-md">
         <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
           <thead className="bg-[#3d454d] text-left">
             <tr>
               <th className="p-2">ID</th>
-              <th className="p-2">DA</th>
+              {/* <th className="p-2">DA</th> */}
               <th className="p-2">Type</th>
               <th className="p-2">Marque</th>
               <th className="p-2">Modèle</th>
-              <th className="p-2">Description</th>
+              {/* <th className="p-2">Description</th> */}
               <th className="p-2">Site</th>
               <th className="p-2 text-right">Quantité</th>
-              <th className="p-2">Utilisateur</th>
+              <th className="p-2">Etat</th>
+              {/* <th className="p-2">Utilisateur</th> */}
               <th className="p-2 text-right">Actions</th>
             </tr>
           </thead>
@@ -125,16 +127,16 @@ const Materiel = () => {
                   className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
                 >
                   <td className="p-2">{item.id}</td>
-                  <td className="p-2">
+                  {/* <td className="p-2">
                     {item.demandeAchat?.numeroDemande ?? "Sans DA"}
-                  </td>
+                  </td> */}
                   <td className="p-2">{item.type}</td>
                   <td className="p-2">{item.marque}</td>
                   <td className="p-2">{item.model}</td>
-                  <td className="p-2">{item.description}</td>
+                  {/* <td className="p-2">{item.description}</td> */}
                   <td className="p-2">{item.site}</td>
                   <td className="p-2 text-right">{item.quantity}</td>
-                  <td className="p-2">{item.user?.name ?? "-"}</td>
+                  <td className="p-2">{item.etat}</td>
                   <td className="p-2 text-right flex justify-end gap-2">
                     <FaEdit
                       size={16}

@@ -51,7 +51,7 @@ const ImpressionDA = () => {
               ))}
             </div>
             <p>
-              <strong>DATE :</strong> {da.date_reception}
+              <strong>DATE :</strong> {da.date_da}
             </p>
           </div>
 

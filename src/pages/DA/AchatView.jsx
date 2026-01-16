@@ -2,13 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../api/axios";
 import Chargement from "../../components/Chargement";
-import {
-  FaMapMarkerAlt,
-  FaLaptop,
-  FaTools,
-  FaCheck,
-  FaTimes,
-} from "react-icons/fa";
+import { FaCheck, FaTimes } from "react-icons/fa";
+import InputSmall from "../../components/InputSmall";
+import Button from "../../components/Button";
 
 const AchatView = () => {
   const { id } = useParams();
@@ -17,21 +13,27 @@ const AchatView = () => {
   const [loading, setLoading] = useState(false);
   const [lockedItemIds, setLockedItemIds] = useState([]);
 
+  // GET ALL DA DETAILS
   useEffect(() => {
     api.get(`/da/${id}`).then((res) => {
       setDa(res.data);
+      console.log(res.data);
       const locked = res.data.items
-        .filter((item) => item.status !== 0)
+        .filter((item) => Number(item.status) !== 0)
+          // .filter((item) => item.status !== 0)
         .map((item) => item.id);
       setLockedItemIds(locked);
     });
   }, [id]);
 
+  // GESTION CHANGEMENT STATUS ITEM
   const handleChangeStatus = (index, newStatus) => {
+ 
     if (lockedItemIds.includes(da.items[index].id)) return;
     const updatedItems = [...da.items];
     updatedItems[index].status =
       updatedItems[index].status === newStatus ? 0 : newStatus;
+         console.log(updatedItems[index]);
     setDa({ ...da, items: updatedItems });
   };
 
@@ -43,10 +45,12 @@ const AchatView = () => {
     setDa({ ...da, items: updatedItems });
   };
 
+  // SAUVEGARDE DES MODIFICATIONS
   const handleSave = async () => {
     setLoading(true);
     try {
       await api.put(`/da/${id}/update-items`, { items: da.items });
+      console.log(da.items);
       alert("Enregistrement effectué !");
       navigate("/achat");
     } catch (error) {
@@ -59,10 +63,10 @@ const AchatView = () => {
   if (!da) return <Chargement />;
 
   return (
-    <div className="p-6 min-h-screen bg-[#1a1d21] text-gray-200">
-      <h1 className="text-center font-bold text-2xl mb-8 text-white tracking-widest">
+    <div className="p-4 min-h-screen bg-[#1a1d21] text-gray-200">
+      <h2 className="text-center font-bold mb-4 text-white tracking-widest">
         TRAITEMENT ACHAT - DA N° {da.numero_da}
-      </h1>
+      </h2>
 
       <div className="overflow-hidden rounded-xl border border-white/10 shadow-2xl bg-[#282c34a3] backdrop-blur-md">
         <table className="w-full text-sm text-left">
@@ -76,8 +80,8 @@ const AchatView = () => {
           </thead>
           <tbody>
             {da.items.map((item, index) => {
-              const isAchete = item.status === 1;
-              const isRefuse = item.status === 2;
+              const isAchete = Number(item.status) === 1;
+              const isRefuse = Number(item.status) === 2;
               const isLocked = lockedItemIds.includes(item.id);
 
               return (
@@ -91,7 +95,7 @@ const AchatView = () => {
                       {item.libelle}
                     </td>
                     <td className="p-2 text-center">
-                      <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded font-bold">
+                      <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded">
                         {item.quantite} {item.unite}
                       </span>
                     </td>
@@ -110,7 +114,7 @@ const AchatView = () => {
                           }`}
                         >
                           <div
-                            className={`p-2 rounded-full border ${
+                            className={`p-1 rounded-full border ${
                               isAchete
                                 ? "bg-green-500/20 border-green-500"
                                 : "border-gray-600"
@@ -133,7 +137,7 @@ const AchatView = () => {
                           }`}
                         >
                           <div
-                            className={`p-2 rounded-full border ${
+                            className={`p-1 rounded-full border ${
                               isRefuse
                                 ? "bg-red-500/20 border-red-500"
                                 : "border-gray-600"
@@ -150,10 +154,12 @@ const AchatView = () => {
                   </tr>
 
                   {/* FORMULAIRE ACHAT (Si coché Acheter) */}
-                  {isAchete && (
+
+                  { (isAchete && !isLocked) && (
                     <tr className="bg-green-500/5 border-l-4 border-l-green-500 animate-fadeIn">
-                      <td colSpan="4" className="p-4">
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                      <td colSpan="5" className="p-2">
+                        {/* Passage à grid-cols-7 pour accommoder les nouveaux champs */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
                           <InputSmall
                             label="Date Facture"
                             type="date"
@@ -184,8 +190,30 @@ const AchatView = () => {
                           <InputSmall
                             label="P.U (Ar)"
                             type="number"
-                            value={item.pu}
-                            onChange={(v) => handleItemUpdate(index, "pu", v)}
+                            value={item.prix_unitaire}
+                            onChange={(v) => handleItemUpdate(index, "prix_unitaire", v)}
+                            disabled={isLocked}
+                          />
+                          {/* NOUVEAU : Remise */}
+                          <InputSmall
+                            label="Remise (Ar)"
+                            type="number"
+                            placeholder="0"
+                            value={item.remise}
+                            onChange={(v) =>
+                              handleItemUpdate(index, "remise", v)
+                            }
+                            disabled={isLocked}
+                          />
+                          {/* NOUVEAU : Frais de livraison */}
+                          <InputSmall
+                            label="Livraison (Ar)"
+                            type="number"
+                            placeholder="0"
+                            value={item.frais_livraison}
+                            onChange={(v) =>
+                              handleItemUpdate(index, "frais_livraison", v)
+                            }
                             disabled={isLocked}
                           />
                           <InputSmall
@@ -205,8 +233,9 @@ const AchatView = () => {
                   {/* MOTIF REFUS (Si coché Refuser) */}
                   {isRefuse && (
                     <tr className="bg-red-500/5 border-l-4 border-l-red-500">
-                      <td colSpan="4" className="p-4">
-                        <textarea
+                      <td colSpan="4" className="p-2">
+                        <input
+                          type="text"
                           placeholder="Saisir le motif du refus..."
                           className="w-full bg-[#1a1d21] border border-red-500/30 rounded-lg p-2 text-xs text-white outline-none focus:border-red-500"
                           value={item.motif_refus || ""}
@@ -237,30 +266,24 @@ const AchatView = () => {
         >
           ← Annuler et retourner
         </button>
-        <button
-          onClick={handleSave}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-3 rounded-xl font-bold shadow-lg shadow-blue-900/20 transition-all disabled:opacity-50"
-        >
-          {loading ? "Chargement..." : "Valider le traitement"}
-        </button>
+        <Button onClick={handleSave} icon={ <FaCheck size={12} />} disabled={loading} label={loading ? "Chargement..." : "Valider le traitement"} />
       </div>
     </div>
   );
 };
 
 // Composant interne pour les petits champs du formulaire
-const InputSmall = ({ label, ...props }) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-[10px] uppercase font-bold text-gray-500 ml-1">
-      {label}
-    </label>
-    <input
-      {...props}
-      className="bg-[#1a1d21] border border-white/10 rounded-md px-2 py-1.5 text-xs text-white focus:border-blue-500 outline-none transition-all disabled:opacity-50"
-      onChange={(e) => props.onChange(e.target.value)}
-    />
-  </div>
-);
+// const InputSmall = ({ label, ...props }) => (
+//   <div className="flex flex-col gap-1">
+//     <label className="text-[10px] uppercase font-bold text-gray-500 ml-1">
+//       {label}
+//     </label>
+//     <input
+//       {...props}
+//       className="bg-[#1a1d21] border border-white/10 rounded-md px-2 py-1.5 text-xs text-white focus:border-blue-500 outline-none transition-all disabled:opacity-50"
+//       onChange={(e) => props.onChange(e.target.value)}
+//     />
+//   </div>
+// );
 
 export default AchatView;

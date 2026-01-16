@@ -102,3 +102,26 @@ body{
 .stat-card.red {
   background-color: #4face421; /* Exemple rouge */
 }
+
+
+
+/* On cible le conteneur du tableau */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px; /* Très fin */
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02); /* Presque invisible */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5); /* Bleu translucide (couleur de ton bouton) */
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.8); /* Plus brillant au survol */
+}

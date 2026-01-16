@@ -27,7 +27,14 @@ const Personnel = () => {
 
   // Filtrer selon recherche
   const filteredPersonnel = personnel.filter((item) =>
-    [item.matricule, item.nom_personnel, item.prenom_personnel, item.service, item.poste, item.site]
+    [
+      item.matricule,
+      item.nom_personnel,
+      item.prenom_personnel,
+      item.service,
+      item.poste,
+      item.site,
+    ]
       .join(" ")
       .toLowerCase()
       .includes(search.toLowerCase())
@@ -54,7 +61,7 @@ const Personnel = () => {
       </div>
 
       {/* Tableau */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto custom-scrollbar overflow-y-auto max-h-[390px] rounded-xl border border-white/10 shadow-2xl bg-[#282c34a3] backdrop-blur-md">
         <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
           <thead className="bg-[#3d454d] text-left">
             <tr>

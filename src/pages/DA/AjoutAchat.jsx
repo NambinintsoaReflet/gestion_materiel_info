@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaCheck, FaPlus, FaTrash } from "react-icons/fa";
 import { api } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
+import Button from "../../components/Button";
 
 /* ---------------- DATE TODAY ---------------- */
 const getTodayDate = () => {
@@ -10,10 +11,11 @@ const getTodayDate = () => {
 };
 
 const AjoutAchat = () => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [form, setForm] = useState({
     numeroDA: "",
-    dateReception: getTodayDate(),
+    dateDa: getTodayDate(),
     site: "",
     status: 0,
     demandeur: "",
@@ -24,6 +26,7 @@ const AjoutAchat = () => {
         unite: "pcs", // ✅ Défini ici pour le premier item
         status: 0,
         emplacement: "",
+        categorie: "Consommable", // ✅ "Consommable" par défaut
       },
     ],
   });
@@ -62,12 +65,13 @@ const AjoutAchat = () => {
       ...prev,
       items: [
         ...prev.items,
-        { 
-          libelle: "", 
-          quantite: 1, 
+        {
+          libelle: "",
+          quantite: 1,
           unite: "pcs", // ✅ "pcs" par défaut lors de l'ajout d'une nouvelle ligne
-          status: 0, 
-          emplacement: "" 
+          status: 0,
+          emplacement: "",
+          categorie: "Consommable", // ✅ "Consommable" par défaut
         },
       ],
     }));
@@ -82,6 +86,7 @@ const AjoutAchat = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     console.log("🚀 Envoi DA :", form);
     try {
       await api.post("/da", form);
@@ -94,6 +99,8 @@ const AjoutAchat = () => {
       } else {
         alert("Impossible de contacter le serveur");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -116,7 +123,7 @@ const AjoutAchat = () => {
 
             <input
               type="date"
-              value={form.dateReception}
+              value={form.dateDa}
               readOnly
               className="w-full p-2 text-sm rounded bg-[#2f343a] border border-gray-500 cursor-not-allowed text-gray-400"
             />
@@ -149,13 +156,15 @@ const AjoutAchat = () => {
             {form.items.map((item, index) => (
               <div
                 key={index}
-                className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3 items-center"
+                className="grid grid-cols-1 md:grid-cols-6 gap-3 mb-3 items-center"
               >
                 <input
                   placeholder="Libellé"
                   required
                   value={item.libelle}
-                  onChange={(e) => handleItemChange(index, "libelle", e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(index, "libelle", e.target.value)
+                  }
                   className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 outline-none"
                 />
 
@@ -164,13 +173,17 @@ const AjoutAchat = () => {
                   min="1"
                   required
                   value={item.quantite}
-                  onChange={(e) => handleItemChange(index, "quantite", e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(index, "quantite", e.target.value)
+                  }
                   className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 outline-none"
                 />
 
                 <select
                   value={item.unite}
-                  onChange={(e) => handleItemChange(index, "unite", e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(index, "unite", e.target.value)
+                  }
                   className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 text-gray-200 outline-none"
                 >
                   <option value="pcs">pcs</option>
@@ -178,12 +191,24 @@ const AjoutAchat = () => {
                   <option value="m">m</option>
                   <option value="kg">kg</option>
                 </select>
+                <select
+                  value={item.categorie}
+                  onChange={(e) =>
+                    handleItemChange(index, "categorie", e.target.value)
+                  }
+                  className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 text-gray-200 outline-none"
+                >
+                  <option value="Consommable">Consommable</option>
+                  <option value="Immobilisation">Immobilisation</option>
+                </select>
 
                 <input
                   placeholder="Emplacement / Destination"
                   required
                   value={item.emplacement}
-                  onChange={(e) => handleItemChange(index, "emplacement", e.target.value)}
+                  onChange={(e) =>
+                    handleItemChange(index, "emplacement", e.target.value)
+                  }
                   className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 outline-none"
                 />
 
@@ -209,12 +234,14 @@ const AjoutAchat = () => {
 
           {/* ACTION */}
           <div className="text-right border-t border-gray-600 pt-4">
-            <button
+            <Button
+              icon={<FaCheck size={12} />}
               type="submit"
-              className="bg-green-600 hover:bg-green-500 px-8 py-2 rounded-md font-bold shadow-lg transition-colors"
-            >
-              Enregistrer la DA
-            </button>
+              disabled={loading}
+              label={
+                loading ? "Enregistrement en cours..." : "Enregistrer la DA"
+              }
+            />
           </div>
         </form>
       </div>

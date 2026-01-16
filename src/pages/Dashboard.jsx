@@ -1,48 +1,40 @@
 import {
-  FaExclamationTriangle,
-  FaLaptop,
-  FaTools,
-  FaUsers,
-  FaClock,
-  FaFire,
-  FaInfoCircle,
-  FaBatteryThreeQuarters,
-  FaWarehouse,
-} from "react-icons/fa"; // Assurez-vous d'importer toutes les icônes nécessaires
+  FaMapMarkerAlt,
+} from "react-icons/fa"; 
+import { useState, useEffect } from "react";
 
 import StatCard from "../components/StatCard";
 import PendingMaintenances from "../components/PendingMaintenances";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import { api } from "../api/axios";
 
 function Dashboard() {
+  const [stats, setStats] = useState([]); // Données venant du backend
+  
   const sitesData = [
     {
       id: "hita1",
       name: "HITA 1",
+      dbName: "HITA1", // Le nom exact dans ta base de données
       total: 0,
-      stockDispo: 0,
       maintenance: 0,
-      lowStock: 0,
     },
     {
       id: "hita2",
       name: "HITA 2",
+      dbName: "HITA2",
       total: 0,
-      stockDispo: 0,
       maintenance: 0,
-      lowStock: 0,
     },
     {
       id: "tana",
       name: "HITA TANA",
+      dbName: "HITA TANA",
       total: 0,
-      stockDispo: 0,
       maintenance: 0,
-      lowStock: 0,
     },
   ];
 
-  // --- Données pour PendingMaintenances ---
+  // --- Données pour PendingMaintenances (Statiques pour le moment) ---
   const pendingMaintenancesData = [
     {
       id: 1,
@@ -61,6 +53,22 @@ function Dashboard() {
       dueDate: "2024-10-28",
     },
   ];
+
+  useEffect(() => {
+    api.get("/equipements/stats-sites")
+      .then((res) => {
+        setStats(res.data.data);
+      })
+      .catch((err) => {
+        console.error("Erreur stats:", err);
+      });
+  }, []);
+
+  // Fonction pour récupérer le total réel calculé par le backend
+  const getRealTotal = (siteDbName) => {
+    const found = stats.find(s => s.site === siteDbName);
+    return found ? found.total : 0;
+  };
 
   return (
     <div className="bg-[#282c34] min-h-screen text-white">
@@ -91,27 +99,25 @@ function Dashboard() {
 
               {/* Contenu : Grille interne */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* COLONNE GAUCHE : Statistiques (4/12 de la largeur) */}
                 <div className="lg:col-span-5 space-y-4">
                   <h3 className="text-[11px] font-bold text-[#61dafb] uppercase tracking-wider mb-2 opacity-80">
-                    État des Équipements
+                    État des matériels
                   </h3>
                   <div className="flex flex-wrap lg:grid-cols-1 gap-3">
                     <StatCard
                       title="Total"
-                      value={site.total}
+                      // ON UTILISE ICI LA VALEUR RÉELLE DU BACKEND
+                      value={getRealTotal(site.dbName)} 
                       color="green"
-                      // Ajoute une petite prop de style dans ton StatCard pour réduire sa taille si besoin
                     />
                     <StatCard
                       title="En maintenance"
-                      value={site.maintenance}
+                      value={site.maintenance} // À lier plus tard quand le backend calculera la maintenance
                       color="orange"
                     />
                   </div>
                 </div>
 
-                {/* COLONNE DROITE : Tableau (7/12 de la largeur) */}
                 <div className="lg:col-span-7">
                   <h3 className="text-[11px] font-bold text-[#61dafb] uppercase tracking-wider mb-2 opacity-80">
                     Consommables Critiques
@@ -126,12 +132,9 @@ function Dashboard() {
                         </tr>
                       </thead>
                       <tbody className="text-[11px] text-gray-200">
-                        {/* Exemple de ligne statique ou map site.consommables */}
                         <tr className="border-t border-white/5 hover:bg-white/5 transition-colors">
                           <td className="p-3 font-medium">Encres Noir</td>
-                          <td className="p-3 text-center font-bold text-orange-400">
-                            05
-                          </td>
+                          <td className="p-3 text-center font-bold text-orange-400">05</td>
                           <td className="p-3 text-right">
                             <span className="bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded text-[9px] border border-orange-500/20 uppercase">
                               Bas
@@ -140,9 +143,7 @@ function Dashboard() {
                         </tr>
                         <tr className="border-t border-white/5 hover:bg-white/5 transition-colors">
                           <td className="p-3 font-medium">Piles LR6 AA</td>
-                          <td className="p-3 text-center font-bold text-red-400">
-                            02
-                          </td>
+                          <td className="p-3 text-center font-bold text-red-400">02</td>
                           <td className="p-3 text-right">
                             <span className="bg-red-500/10 text-red-400 px-2 py-0.5 rounded text-[9px] border border-red-500/20 uppercase font-bold">
                               Critique
@@ -158,9 +159,7 @@ function Dashboard() {
           ))}
         </div>
       </div>
-      {/* NOUVELLE SECTION : Maintenances en Attente */}
       <div className="bg-[#20232a] p-4 rounded-md">
-        {/* Utiliser la même couleur de fond pour la cohérence */}
         <PendingMaintenances maintenances={pendingMaintenancesData} />
       </div>
     </div>
