@@ -25,6 +25,8 @@ import Article from "./pages/Articles/Article";
 import LayoutArticle from "./pages/Articles/LayoutArticle";
 import EntreeStock from "./pages/Articles/EntreeStock";
 import SortieStock from "./pages/Articles/SortieStock";
+import NotFound from "./pages/NotFound";
+import HistoriqueMouvements from "./pages/MouvementStock/HistoriqueMouvements";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,7 @@ function App() {
                     <Route index element={<Article />} />
                     <Route path="/article/entree" element={<EntreeStock />} />
                     <Route path="/article/sortie" element={<SortieStock />} />
+                     <Route path="/article/mouvement" element={<HistoriqueMouvements />} />
                   </Route>
                   <Route path="/suivie" element={<Suivie />} />
                   <Route path="/personnel" element={<LayoutPersonnel />}>
@@ -70,6 +73,8 @@ function App() {
                 </Route>
                 <Route path="/achat/:id/imprimer" element={<ImpressionDA />} />
               </Route>
+              <Route path="*" element={<NotFound />} />
+             
             </Routes>
           </QueryClientProvider>
         </AuthProvider>

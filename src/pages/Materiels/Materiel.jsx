@@ -97,15 +97,12 @@ const Materiel = () => {
           <thead className="bg-[#3d454d] text-left">
             <tr>
               <th className="p-2">ID</th>
-              {/* <th className="p-2">DA</th> */}
               <th className="p-2">Type</th>
               <th className="p-2">Marque</th>
               <th className="p-2">Modèle</th>
-              {/* <th className="p-2">Description</th> */}
               <th className="p-2">Site</th>
               <th className="p-2 text-right">Quantité</th>
               <th className="p-2">Etat</th>
-              {/* <th className="p-2">Utilisateur</th> */}
               <th className="p-2 text-right">Actions</th>
             </tr>
           </thead>
@@ -127,13 +124,9 @@ const Materiel = () => {
                   className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
                 >
                   <td className="p-2">{item.id}</td>
-                  {/* <td className="p-2">
-                    {item.demandeAchat?.numeroDemande ?? "Sans DA"}
-                  </td> */}
                   <td className="p-2">{item.type}</td>
                   <td className="p-2">{item.marque}</td>
                   <td className="p-2">{item.model}</td>
-                  {/* <td className="p-2">{item.description}</td> */}
                   <td className="p-2">{item.site}</td>
                   <td className="p-2 text-right">{item.quantity}</td>
                   <td className="p-2">{item.etat}</td>

@@ -1,285 +1,186 @@
 import React, { useEffect, useState } from "react";
 import {
+  FaSearch,
+  FaFilter,
+  FaHistory,
   FaEdit,
   FaTrash,
-  FaExclamationTriangle,
-  FaPlus,
-  FaBoxes,
-  FaSearch,
+  FaArrowUp,
+  FaArrowDown,
+  FaCube,
 } from "react-icons/fa";
 import { api } from "../../api/axios";
-import NavArticle from "./NavArticle";
 
-const Article = () => {
-  // États pour la liste
-  const [articles, setArticles] = useState([]);
+const HistoriqueMouvements = () => {
+  const [mouvements, setMouvements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterSite, setFilterSite] = useState("");
 
-  // États pour la Modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newArticle, setNewArticle] = useState({
-    designation: "",
-    unite: "pcs",
-    stock_alerte: 5,
-    emplacement: "",
-  });
-
-  // 1. Charger les articles au montage
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchMouvements = async () => {
     try {
-      const res = await api.get("/articles");
-      setArticles(res.data);
+      setLoading(true);
+      const res = await api.get("/mouvement-articles");
+      setMouvements(res.data);
     } catch (err) {
-      console.error("Erreur de chargement", err);
+      console.error("Erreur lors du chargement des mouvements", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchMouvements();
   }, []);
 
-  // 2. Fonction de création d'article
-  const handleAddArticle = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post("/articles", newArticle);
-      setIsModalOpen(false);
-      setNewArticle({
-        designation: "",
-        unite: "pcs",
-        stock_alerte: 5,
-        emplacement: "",
-      });
-      fetchData();
-    } catch (err) {
-      alert("Erreur lors de la création de l'article");
-    }
-  };
-
-  // 3. Filtrage pour la recherche
-  const filteredArticles = articles.filter((art) =>
-    art.designation.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMouvements = mouvements.filter((mov) => {
+    const matchesSearch =
+      mov.article?.designation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mov.demande_achat_id?.toString().includes(searchTerm);
+    const matchesSite = filterSite === "" || mov.site === filterSite;
+    return matchesSearch && matchesSite;
+  });
 
   return (
-    <div className="min-h-screen text-white">
-      {/* Barre d'actions supérieure */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 mt-4">
-        <div className="relative w-full md:w-96">
-          <FaSearch className="absolute left-3 top-2.5 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Rechercher un article..."
-            className="w-full rounded-md py-1.5 pl-10 pr-2 border border-gray-400 text-sm bg-[#343a40] text-gray-200 outline-none focus:border-blue-500 transition-all"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 rounded-md py-1.5 px-3 text-sm bg-blue-500 text-white hover:bg-blue-600 transition-all outline-none shadow-md"
-        >
-          <FaPlus />
-          <span>Nouvel Article</span>
-        </button>
-      </div>
-
-      {/* Tableau des Articles */}
-      <div className="overflow-x-auto custom-scrollbar overflow-y-auto max-h-[390px] rounded-xl border border-white/10 shadow-2xl bg-[#282c34a3] backdrop-blur-md">
-        <table className="w-full text-sm text-gray-300 bg-[#343a40] rounded-md overflow-hidden">
-          <thead className="bg-[#3d454d] text-left">
-            <tr>
-              <th className="p-2">Désignation</th>
-              <th className="p-2 text-center">Stock Actuel</th>
-              <th className="p-2 text-center">Alerte</th>
-              <th className="p-2">Emplacement</th>
-              <th className="p-2 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#4a4f55]">
-            {loading ? (
-              <tr>
-                <td colSpan="5" className="p-12 text-center text-gray-500">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    Chargement de l'inventaire...
-                  </div>
-                </td>
-              </tr>
-            ) : filteredArticles.length > 0 ? (
-              filteredArticles.map((art) => {
-                const isAlert = art.stock_actuel <= art.stock_alerte;
-                return (
-                  <tr
-                    key={art.id}
-                    className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]"
-                  >
-                    <td className="p-4 font-semibold text-white">
-                      {art.designation}
-                    </td>
-                    <td className="p-4 text-center">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          isAlert
-                            ? "bg-red-900/40 text-red-400 border border-red-500/50"
-                            : "bg-green-900/30 text-green-400 border border-green-500/20"
-                        }`}
-                      >
-                        {art.stock_actuel} {art.unite}
-                      </span>
-                    </td>
-                    <td className="p-4 text-center text-gray-400">
-                      {art.stock_alerte}
-                    </td>
-                    <td className="p-4 text-gray-400 italic">
-                      {art.emplacement || "---"}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex justify-center gap-4">
-                        {isAlert && (
-                          <FaExclamationTriangle
-                            className="text-yellow-500 mt-0.5 animate-pulse"
-                            title="Seuil d'alerte atteint"
-                          />
-                        )}
-                        <button className="text-blue-400 hover:text-blue-300">
-                          <FaEdit />
-                        </button>
-                        <button className="text-red-400 hover:text-red-300">
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan="5"
-                  className="p-8 text-center text-gray-500 italic"
-                >
-                  Aucun article trouvé.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* --- MODAL DE CRÉATION --- */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-[#2d3238] w-full max-w-md rounded-2xl border border-[#4a4f55] shadow-2xl animate-in zoom-in duration-200">
-            <div className="p-4 border-b border-[#4a4f55] flex justify-between items-center bg-[#343a40] rounded-t-2xl">
-              <h3 className="font-bold flex items-center gap-2 text-white">
-                <FaBoxes className="text-blue-500" /> Nouvel Article
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleAddArticle} className="p-6 space-y-4">
-              <div>
-                <label className="text-[11px] uppercase text-gray-500 font-bold mb-1 block">
-                  Désignation *
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full bg-[#3d454d] border border-[#4a4f55] p-2.5 rounded-lg focus:border-blue-500 outline-none text-white transition-all"
-                  placeholder="ex: Cartouche Entretien"
-                  value={newArticle.designation}
-                  onChange={(e) =>
-                    setNewArticle({
-                      ...newArticle,
-                      designation: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] uppercase text-gray-500 font-bold mb-1 block">
-                  Unité
-                </label>
-                <input
-                  type="text"
-                  className="w-full bg-[#3d454d] border border-[#4a4f55] p-2.5 rounded-lg focus:border-blue-500 outline-none text-white"
-                  placeholder="pcs, pqt, rouleau..."
-                  value={newArticle.unite}
-                  onChange={(e) =>
-                    setNewArticle({ ...newArticle, unite: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[11px] uppercase text-gray-500 font-bold mb-1 block">
-                    Seuil d'alerte
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full bg-[#3d454d] border border-[#4a4f55] p-2.5 rounded-lg outline-none text-white"
-                    value={newArticle.stock_alerte}
-                    onChange={(e) =>
-                      setNewArticle({
-                        ...newArticle,
-                        stock_alerte: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="text-[11px] uppercase text-gray-500 font-bold mb-1 block">
-                    Emplacement
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full bg-[#3d454d] border border-[#4a4f55] p-2.5 rounded-lg outline-none text-white"
-                    placeholder="ex: Magasin"
-                    value={newArticle.emplacement}
-                    onChange={(e) =>
-                      setNewArticle({
-                        ...newArticle,
-                        emplacement: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-lg bg-[#3d454d] hover:bg-gray-600 text-white font-medium transition-colors"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-lg"
-                >
-                  Enregistrer
-                </button>
-              </div>
-            </form>
+    <div className="p-6 max-w-7xl mx-auto min-h-screen">
+      {/* HEADER SECTION */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="bg-gradient-to-br from-green-500 to-green-700 p-3.5 rounded-2xl shadow-lg shadow-green-900/20">
+            <FaHistory className="text-white text-2xl" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Flux de Stock</h1>
+            <p className="text-gray-400 text-sm font-medium">Visualisez l'activité de votre inventaire</p>
           </div>
         </div>
-      )}
+
+        {/* CONTROLES */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative group">
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-colors" />
+            <input
+              type="text"
+              placeholder="Rechercher article ou DA..."
+              className="bg-[#2d3238] text-white pl-10 pr-4 py-2.5 rounded-xl border border-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none w-72 transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center bg-[#2d3238] rounded-xl border border-gray-700 px-4 group focus-within:border-blue-500 transition-all">
+            <FaFilter className="text-gray-500 mr-3" />
+            <select
+              className="bg-transparent text-white py-2.5 outline-none cursor-pointer text-sm font-medium"
+              value={filterSite}
+              onChange={(e) => setFilterSite(e.target.value)}
+            >
+              <option value="">Tous les sites</option>
+              <option value="HITA1">HITA 1</option>
+              <option value="HITA2">HITA 2</option>
+              <option value="HITA TANA">HITA TANA</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* TABLEAU DES MOUVEMENTS */}
+      <div className="bg-[#282c34] rounded-2xl overflow-hidden border border-gray-700 shadow-2xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left border-collapse">
+            <thead>
+              <tr className="bg-[#3d454d]/50 text-gray-400 uppercase text-[11px] font-bold tracking-widest border-b border-gray-700">
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4">Désignation</th>
+                <th className="px-6 py-4 text-center">N° DA</th>
+                <th className="px-6 py-4 text-center">Site</th>
+                <th className="px-6 py-4 text-center">Quantité</th>
+                <th className="px-6 py-4 text-center">Type</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-700/50">
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="py-24 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-500 font-medium tracking-wide">Récupération des flux...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredMouvements.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="py-20 text-center">
+                    <div className="flex flex-col items-center text-gray-500">
+                      <FaCube size={40} className="mb-3 opacity-20" />
+                      <p className="italic">Aucun mouvement ne correspond à votre recherche</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredMouvements.map((mov) => {
+                  const isEntree = mov.type.toLowerCase().includes("entrée");
+                  return (
+                    <tr key={mov.id} className="hover:bg-[#343a40]/50 transition-colors group">
+                      <td className="px-6 py-4">
+                        <span className="text-gray-400 font-mono text-xs block">{mov.dateReception}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-100 group-hover:text-white transition-colors">
+                            {mov.article?.designation || "Article inconnu"}
+                          </span>
+                          <span className="text-[10px] text-gray-500 uppercase font-semibold">ID: {mov.article?.id_article || "N/A"}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {mov.demande_achat_id ? (
+                          <span className="bg-blue-900/20 text-blue-400 px-2.5 py-1 rounded-md border border-blue-800/30 text-[11px] font-bold">
+                            DA-{mov.demande_achat_id}
+                          </span>
+                        ) : (
+                          <span className="text-gray-600 text-xs italic">Achat Direct</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="text-gray-300 font-medium">{mov.site}</span>
+                      </td>
+                      <td className="px-6 py-4 text-center font-black">
+                        <div className={`flex items-center justify-center gap-1 ${isEntree ? "text-green-400" : "text-red-400"}`}>
+                          {isEntree ? <FaArrowDown size={10} /> : <FaArrowUp size={10} />}
+                          {mov.quantity}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`text-[10px] px-3 py-1 rounded-full font-bold border ${
+                          isEntree 
+                          ? "bg-green-500/10 text-green-500 border-green-500/20" 
+                          : "bg-red-500/10 text-red-500 border-red-500/20"
+                        }`}>
+                          {mov.type.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                          <button title="Modifier" className="p-2 text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors">
+                            <FaEdit size={14} />
+                          </button>
+                          <button title="Supprimer" className="p-2 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                            <FaTrash size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Article;
+export default HistoriqueMouvements;

@@ -1,26 +1,33 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FaBoxes, FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { FaBoxes, FaArrowDown, FaArrowUp, FaHistory } from "react-icons/fa";
+import { GiMovementSensor } from "react-icons/gi";
 
 const NavArticle = () => {
   const ArticleMenuItems = [
-    { 
-      to: "/article", 
-      label: "Liste des articles", 
-      icon: <FaBoxes />, 
-      exact: true 
+    {
+      to: "/article",
+      label: "Stocks",
+      icon: <FaBoxes />,
+      exact: true,
     },
-    { 
-      to: "/article/entree", 
-      label: "Entrée en stock", 
-      icon: <FaArrowDown className="text-green-500" />, 
-      exact: false 
+    {
+      to: "/article/entree",
+      label: "Entrée",
+      icon: <FaArrowDown className="text-green-500" />,
+      exact: false,
     },
-    { 
-      to: "/article/sortie", 
-      label: "Sortie de stock", 
-      icon: <FaArrowUp className="text-orange-500" />, 
-      exact: false 
+    {
+      to: "/article/sortie",
+      label: "Sortie",
+      icon: <FaArrowUp className="text-orange-500" />,
+      exact: false,
+    },
+    {
+      to: "/article/mouvement",
+      label: "Flux de Stock",
+      icon: <FaHistory className="text-blue-500" />,
+      exact: false,
     },
   ];
 
@@ -32,7 +39,7 @@ const NavArticle = () => {
             <NavLink
               to={item.to}
               // "end" assure que le lien n'est pas actif si on est sur une sous-route
-              end={item.exact} 
+              end={item.exact}
               className={({ isActive }) =>
                 `flex items-center text-sm font-medium transition-all duration-200
                 ${
