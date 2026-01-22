@@ -13,6 +13,22 @@ const AchatView = () => {
   const [loading, setLoading] = useState(false);
   const [lockedItemIds, setLockedItemIds] = useState([]);
 
+  const formatNumber = (value) => {
+    // 1. Gérer les cas vides ou non numériques
+    if (value === null || value === undefined || value === "") return "";
+
+    // 2. Convertir en chaîne et nettoyer tout caractère non numérique existant
+    // (Utile si la valeur provient d'un input déjà formaté)
+    const stringValue = value.toString().replace(/\s/g, "");
+
+    // 3. Transformer en nombre
+    const number = parseFloat(stringValue);
+    if (isNaN(number)) return "";
+
+    // 4. Utiliser l'API internationale pour le séparateur de milliers (espace insécable)
+    return new Intl.NumberFormat("fr-FR").format(number);
+  };
+
   // GET ALL DA DETAILS
   useEffect(() => {
     api.get(`/da/${id}`).then((res) => {
@@ -20,7 +36,7 @@ const AchatView = () => {
       console.log(res.data);
       const locked = res.data.items
         .filter((item) => Number(item.status) !== 0)
-          // .filter((item) => item.status !== 0)
+        // .filter((item) => item.status !== 0)
         .map((item) => item.id);
       setLockedItemIds(locked);
     });
@@ -28,12 +44,11 @@ const AchatView = () => {
 
   // GESTION CHANGEMENT STATUS ITEM
   const handleChangeStatus = (index, newStatus) => {
- 
     if (lockedItemIds.includes(da.items[index].id)) return;
     const updatedItems = [...da.items];
     updatedItems[index].status =
       updatedItems[index].status === newStatus ? 0 : newStatus;
-         console.log(updatedItems[index]);
+    console.log(updatedItems[index]);
     setDa({ ...da, items: updatedItems });
   };
 
@@ -52,7 +67,7 @@ const AchatView = () => {
       await api.put(`/da/${id}/update-items`, { items: da.items });
       console.log(da.items);
       alert("Enregistrement effectué !");
-      navigate("/achat");
+      // navigate("/achat");
     } catch (error) {
       console.error("Erreur lors de la sauvegarde", error);
     } finally {
@@ -155,7 +170,7 @@ const AchatView = () => {
 
                   {/* FORMULAIRE ACHAT (Si coché Acheter) */}
 
-                  { (isAchete && !isLocked) && (
+                  {isAchete && !isLocked && (
                     <tr className="bg-green-500/5 border-l-4 border-l-green-500 animate-fadeIn">
                       <td colSpan="5" className="p-2">
                         {/* Passage à grid-cols-7 pour accommoder les nouveaux champs */}
@@ -189,31 +204,58 @@ const AchatView = () => {
                           />
                           <InputSmall
                             label="P.U (Ar)"
-                            type="number"
-                            value={item.prix_unitaire}
-                            onChange={(v) => handleItemUpdate(index, "prix_unitaire", v)}
+                            type="text" // Changé de "number" à "text" pour autoriser les espaces
+                            value={formatNumber(item.prix_unitaire)}
+                            onChange={(v) => {
+                              // Ajout de l'accolade ouvrante
+                              // On nettoie la valeur : on enlève les espaces et les caractères non-numériques
+                              const rawValue = v
+                                .replace(/\s/g, "")
+                                .replace(/[^0-9.]/g, "");
+
+                              if (!isNaN(rawValue) || rawValue === "") {
+                                handleItemUpdate(
+                                  index,
+                                  "prix_unitaire",
+                                  rawValue,
+                                );
+                              }
+                            }} // Ajout de l'accolade fermante
                             disabled={isLocked}
                           />
                           {/* NOUVEAU : Remise */}
                           <InputSmall
-                            label="Remise (Ar)"
-                            type="number"
-                            placeholder="0"
-                            value={item.remise}
-                            onChange={(v) =>
-                              handleItemUpdate(index, "remise", v)
-                            }
-                            disabled={isLocked}
+                            label="Remise"
+                            type="text" // Toujours text pour voir les espaces
+                            value={formatNumber(item.remise)}
+                            onChange={(v) => {
+                              // On retire les espaces pour stocker un vrai nombre dans le state
+                              const rawValue = v.replace(/\s/g, "");
+                              if (!isNaN(rawValue) || rawValue === "") {
+                                handleItemUpdate(index, "remise", rawValue);
+                              }
+                            }}
                           />
                           {/* NOUVEAU : Frais de livraison */}
                           <InputSmall
                             label="Livraison (Ar)"
-                            type="number"
+                            type="text" // Changé en text pour permettre l'affichage des espaces
                             placeholder="0"
-                            value={item.frais_livraison}
-                            onChange={(v) =>
-                              handleItemUpdate(index, "frais_livraison", v)
-                            }
+                            value={formatNumber(item.frais_livraison)}
+                            onChange={(v) => {
+                              // 1. On retire les espaces pour le stockage
+                              // 2. On retire tout ce qui n'est pas un chiffre
+                              const rawValue = v
+                                .replace(/\s/g, "")
+                                .replace(/[^0-9]/g, "");
+
+                              // On met à jour l'état avec la valeur brute
+                              handleItemUpdate(
+                                index,
+                                "frais_livraison",
+                                rawValue,
+                              );
+                            }}
                             disabled={isLocked}
                           />
                           <InputSmall
@@ -243,7 +285,7 @@ const AchatView = () => {
                             handleItemUpdate(
                               index,
                               "motif_refus",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           disabled={isLocked}
@@ -266,7 +308,12 @@ const AchatView = () => {
         >
           ← Annuler et retourner
         </button>
-        <Button onClick={handleSave} icon={ <FaCheck size={12} />} disabled={loading} label={loading ? "Chargement..." : "Valider le traitement"} />
+        <Button
+          onClick={handleSave}
+          icon={<FaCheck size={12} />}
+          disabled={loading}
+          label={loading ? "Chargement..." : "Valider le traitement"}
+        />
       </div>
     </div>
   );

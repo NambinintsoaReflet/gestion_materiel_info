@@ -8,7 +8,7 @@ import { Layout } from "./pages/Layout";
 import Materiel from "./pages/Materiels/Materiel";
 import LayoutMateriel from "./pages/Materiels/LayoutMateriel";
 import AjoutMateriel from "./pages/Materiels/AjoutMateriel";
-import Suivie from "./pages/Materiels/Suivie";
+import Suivie from "./pages/RapportAchats";
 import Rapport from "./pages/Rapport";
 import Parametre from "./pages/Parametre";
 import Aide from "./pages/Aide";
@@ -27,6 +27,7 @@ import EntreeStock from "./pages/Articles/EntreeStock";
 import SortieStock from "./pages/Articles/SortieStock";
 import NotFound from "./pages/NotFound";
 import HistoriqueMouvements from "./pages/MouvementStock/HistoriqueMouvements";
+import RapportAchats from "./pages/RapportAchats";
 
 const queryClient = new QueryClient();
 
@@ -59,7 +60,7 @@ function App() {
                     <Route path="/article/sortie" element={<SortieStock />} />
                      <Route path="/article/mouvement" element={<HistoriqueMouvements />} />
                   </Route>
-                  <Route path="/suivie" element={<Suivie />} />
+                  <Route path="/rapport-achat" element={<RapportAchats />} />
                   <Route path="/personnel" element={<LayoutPersonnel />}>
                     <Route index element={<Personnel />} />
                     <Route

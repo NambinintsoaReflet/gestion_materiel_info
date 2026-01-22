@@ -23,7 +23,7 @@ const menuItems = [
     label: "Articles",
   },
   {
-    to: "/suivie",
+    to: "/rapport-achat",
     icon: <MdOutlineManageHistory className="p-1" />,
     label: "Suivie",
   },
