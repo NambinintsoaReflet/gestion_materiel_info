@@ -90,8 +90,8 @@ const SortieStock = () => {
   }));
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center gap-3 mb-8 border-b border-red-900/50 pb-4">
+    <div className="p-2 max-w-6xl mx-auto">
+      <div className="flex items-center gap-3 mb-4 border-b border-red-900/50 pb-4">
         <div className="bg-red-600 p-3 rounded-lg shadow-lg">
           <FaMinus className="text-white text-xl" />
         </div>
@@ -104,7 +104,7 @@ const SortieStock = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         
         {/* SECTION 1 : SOURCE ET DESTINATION */}
-        <div className="bg-[#2d3238] rounded-xl p-6 shadow-xl border border-gray-700">
+        <div className="bg-[#2d3238] rounded-xl p-4 shadow-xl border border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* ARTICLE */}

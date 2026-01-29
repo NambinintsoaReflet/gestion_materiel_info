@@ -14,10 +14,10 @@ function Dashboard() {
     { id: "tana", name: "HITA TANA", dbName: "HITA TANA", total: 0, maintenance: 0, stockKey: "stock_tana" },
   ];
 
-  const pendingMaintenancesData = [
-    { id: 1, assetId: "PC-005", model: "Dell Optiplix", type: "OS Update", description: "Toner Refill", dueDate: "2024-10-27" },
-    { id: 2, assetId: "PRN-012", model: "HP Lapsyjiet", type: "Service", description: "Disk Check", dueDate: "2024-10-28" },
-  ];
+  // const pendingMaintenancesData = [
+    // { id: 1, assetId: "PC-005", model: "Dell Optiplix", type: "OS Update", description: "Toner Refill", dueDate: "2024-10-27" },
+    // { id: 2, assetId: "PRN-012", model: "HP Lapsyjiet", type: "Service", description: "Disk Check", dueDate: "2024-10-28" },
+  // ];
 
   useEffect(() => {
     // 1. Récupérer les stats des équipements
@@ -46,19 +46,19 @@ function Dashboard() {
 
   return (
     <div className="bg-[#282c34] min-h-screen text-white">
-      <div className="bg-fond p-2 rounded-md mb-4">
-        <h2 className="text-md font-bold mb-2 text-[#61dafb] uppercase tracking-wider">
+      <div className="bg-fond p-2 rounded-md ">
+        <h2 className="text-md font-bold p-2 text-[#61dafb] uppercase tracking-wider">
           DASHBOARD
         </h2>
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 p-2">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 p-2">
           {sitesData.map((site) => (
             <div
               key={site.id}
-              className="bg-[#282c34a3] backdrop-blur-md p-5 rounded-2xl border border-white/10 shadow-2xl flex flex-col"
+              className="bg-[#282c34a3] backdrop-blur-md p-3 rounded-2xl border border-white/10 shadow-2xl flex flex-col"
             >
-              <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3 mb-4 border-b border-white/10 pb-2">
                 <div className="p-2 bg-blue-500/20 rounded-lg shadow-inner">
-                  <FaMapMarkerAlt className="text-blue-400 text-xl" />
+                  <FaMapMarkerAlt className={`text-blue-400 text-xl ${site.id === "hita1" ? "text-blue-400" : site.id === "hita2" ? "text-green-400" : "text-purple-400"}`} />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-white uppercase tracking-widest">
@@ -130,7 +130,7 @@ function Dashboard() {
         </div>
       </div>
       <div className="bg-[#20232a] p-4 rounded-md">
-        <PendingMaintenances maintenances={pendingMaintenancesData} />
+        {/* <PendingMaintenances maintenances={pendingMaintenancesData} /> */}
       </div>
     </div>
   );

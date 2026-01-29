@@ -42,7 +42,7 @@ const RapportAchats = () => {
   };
 
   return (
-    <div className="p-6 max-w-[1600px] mx-auto min-h-screen text-white">
+    <div className="p-2 max-w-[1600px] mx-auto min-h-screen text-white">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div className="flex items-center gap-4">
@@ -77,6 +77,7 @@ const RapportAchats = () => {
                 <th className="p-2">Désignation</th>
                 <th className="p-2 text-center">Qté</th>
                 <th className="p-2 text-right">P.U</th>
+                <th className="p-2">Etat</th>
                 <th className="p-2">Fournisseur</th>
                 <th className="p-2 text-center">N° BC</th>
                 <th className="p-2">Demandeur</th>
@@ -103,6 +104,9 @@ const RapportAchats = () => {
                   </td>
                   <td className="p-2 text-right text-green-400 font-bold">
                     {formatPrice(item.prix_unitaire)} Ar
+                  </td>
+                    <td className="p-2 italic text-gray-400">
+                    {item.etat_materiel || "---"}
                   </td>
                   <td className="p-2 italic text-gray-400">
                     {item.fournisseur || "---"}

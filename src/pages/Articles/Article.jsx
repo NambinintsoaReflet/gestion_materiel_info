@@ -137,17 +137,17 @@ const Article = () => {
               
               return (
                 <tr key={art.id} className="hover:bg-[#3d454d] transition border-b border-[#4a4f55]">
-                  <td className="p-4 font-mono text-blue-400 text-xs">{art.id_article}</td>
-                  <td className="p-4 font-semibold text-white uppercase">{art.designation}</td>
-                  <td className="p-4 text-center font-bold">{art.stock_hita1 || 0}</td>
-                  <td className="p-4 text-center font-bold">{art.stock_hita2 || 0}</td>
-                  <td className="p-4 text-center font-bold">{art.stock_tana || 0}</td>
-                  <td className="p-4 text-center">
+                  <td className="p-2 font-mono text-blue-400 text-xs">{art.id_article}</td>
+                  <td className="p-2 text-white">{art.designation}</td>
+                  <td className="p-2 text-center font-bold">{art.stock_hita1 || 0}</td>
+                  <td className="p-2 text-center font-bold">{art.stock_hita2 || 0}</td>
+                  <td className="p-2 text-center font-bold">{art.stock_tana || 0}</td>
+                  <td className="p-2 text-center">
                     <span className={`px-2 py-1 rounded text-xs font-bold ${isAlert ? "bg-red-900/40 text-red-400" : "text-gray-500"}`}>
                       {art.stock_min}
                     </span>
                   </td>
-                  <td className="p-4 text-center">
+                  <td className="p-2 text-center">
                     <div className="flex justify-center gap-3">
                       {isAlert && <FaExclamationTriangle className="text-yellow-500 animate-pulse" />}
                       <button className="text-blue-400 hover:text-blue-200"><FaEdit /></button>

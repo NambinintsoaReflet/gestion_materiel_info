@@ -1,12 +1,19 @@
 import React from "react";
-import { FaTachometerAlt } from "react-icons/fa";
-import { SiMaterialformkdocs } from "react-icons/si";
+import { FaBoxes, FaPlus } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 
 const NavMateriel = () => {
   const MaterielMenuItems = [
-    { to: "/materiels", label: "Liste matériels" },
-    { to: "/materiels/ajout", label: "Ajout matériel" },
+    {
+      to: "/materiels",
+      label: "Liste matériels",
+      icon: <FaBoxes />,
+    },
+    {
+      to: "/materiels/ajout",
+      label: "Ajout matériel",
+      icon: <FaPlus />,
+    },
   ];
 
   return (
@@ -18,7 +25,7 @@ const NavMateriel = () => {
               to={item.to}
               end={item.to === "/materiels"} // <-- active seulement si exact
               className={({ isActive }) =>
-                `flex flex-col items-center text-sm font-medium transition-all duration-200
+                `flex items-center text-sm font-medium transition-all duration-200
      ${
        isActive
          ? "text-[#61dafb] underline underline-offset-8 decoration-2"
@@ -26,7 +33,7 @@ const NavMateriel = () => {
      }`
               }
             >
-              {item.icon}
+              <span className="text-lg mr-2">{item.icon}</span>
               <span className="mt-1">{item.label}</span>
             </NavLink>
           </li>

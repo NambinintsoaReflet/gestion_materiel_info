@@ -86,9 +86,9 @@ const EntreeStock = () => {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center gap-3 mb-8 border-b border-gray-700 pb-4">
-        <div className="bg-blue-600 p-3 rounded-lg shadow-lg">
+    <div className="p-2 max-w-6xl mx-auto">
+      <div className="flex items-center gap-3 mb-4 border-b border-gray-700 pb-2">
+        <div className="bg-blue-600 p-2 rounded-lg shadow-lg">
           <FaPlus className="text-white text-xl" />
         </div>
         <div>
@@ -97,10 +97,10 @@ const EntreeStock = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* SOURCE DE RÉCEPTION */}
-        <div className="bg-[#2d3238] rounded-xl p-6 shadow-xl border border-gray-700">
-          <h2 className="text-blue-400 text-sm font-bold uppercase mb-6 flex items-center gap-2">
+        <div className="bg-[#2d3238] rounded-xl p-4 shadow-xl border border-gray-700">
+          <h2 className="text-blue-400 text-sm font-bold uppercase mb-2 flex items-center gap-2">
             <FaClipboardList /> Source
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -139,7 +139,7 @@ const EntreeStock = () => {
                     setFormData(prev => ({ ...prev, demande_achat_id: "" }));
                   }
                 }}
-                placeholder="Ex: DA-001"
+                placeholder="Ex: DA001"
               />
               {currentDA && <p className="text-[10px] text-green-400 font-bold">✅ DA Validée</p>}
             </div>
@@ -155,7 +155,7 @@ const EntreeStock = () => {
 
         {/* DÉTAILS ARTICLE */}
         <div className="bg-[#2d3238] rounded-xl p-6 shadow-xl border border-gray-700">
-          <h2 className="text-green-400 text-sm font-bold uppercase mb-6 flex items-center gap-2">
+          <h2 className="text-green-400 text-sm font-bold uppercase mb-2 flex items-center gap-2">
             <FaBoxOpen /> Article & Stockage
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

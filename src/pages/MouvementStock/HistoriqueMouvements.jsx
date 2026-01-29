@@ -35,9 +35,9 @@ const HistoriqueMouvements = () => {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-2 max-w-7xl mx-auto">
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
         <div className="flex items-center gap-3">
           <div className="bg-green-600 p-3 rounded-lg shadow-lg">
             <FaHistory className="text-white text-xl" />
@@ -113,7 +113,7 @@ const HistoriqueMouvements = () => {
                     <td className="p-2 text-center">
                       {mov.article?.id_article}
                     </td>
-                    <td className="p-2 font-bold text-white">
+                    <td className="p-2 text-white">
                       {mov.article?.designation}
                     </td>
                     <td className="p-2 text-center italic text-gray-500">

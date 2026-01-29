@@ -67,7 +67,7 @@ const AchatView = () => {
       await api.put(`/da/${id}/update-items`, { items: da.items });
       console.log(da.items);
       alert("Enregistrement effectué !");
-      // navigate("/achat");
+      navigate("/achat");
     } catch (error) {
       console.error("Erreur lors de la sauvegarde", error);
     } finally {
@@ -89,7 +89,8 @@ const AchatView = () => {
             <tr>
               <th className="p-2">Libellé</th>
               <th className="p-2 text-center">Qte</th>
-              <th className="p-2">Emplacement</th>
+              <th className="p-2">Emplacement /Destination</th>
+              <th className="p-2">Section /Service /Projet</th>
               <th className="p-2 text-center print:hidden">Action</th>
             </tr>
           </thead>
@@ -116,6 +117,9 @@ const AchatView = () => {
                     </td>
                     <td className="p-2 italic text-gray-400">
                       {item.emplacement}
+                    </td>
+                        <td className="p-2 italic text-gray-400">
+                      {item.projet}
                     </td>
                     <td className="p-2 print:hidden">
                       <div className="flex justify-center gap-6">
@@ -264,6 +268,15 @@ const AchatView = () => {
                             value={item.fournisseur}
                             onChange={(v) =>
                               handleItemUpdate(index, "fournisseur", v)
+                            }
+                            disabled={isLocked}
+                          />
+                             <InputSmall
+                            label="Etat"
+                            placeholder="Etat du materiel"
+                            value={item.etat_materiel}
+                            onChange={(v) =>
+                              handleItemUpdate(index, "etat_materiel", v)
                             }
                             disabled={isLocked}
                           />

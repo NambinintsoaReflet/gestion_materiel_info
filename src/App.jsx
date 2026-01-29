@@ -28,6 +28,7 @@ import SortieStock from "./pages/Articles/SortieStock";
 import NotFound from "./pages/NotFound";
 import HistoriqueMouvements from "./pages/MouvementStock/HistoriqueMouvements";
 import RapportAchats from "./pages/RapportAchats";
+import SuiviTransfertDA from "./pages/SuiviTransfertDA";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,8 @@ function App() {
                     />
                   </Route>
                   <Route path="/reports" element={<Rapport />} />
+                  <Route path="/transfert" element={<SuiviTransfertDA />} />
+                  {/* <Route path="/transfert" element={<NotFound />} /> */}
                   <Route path="/settings" element={<Parametre />} />
                   <Route path="/help" element={<Aide />} />
                 </Route>

@@ -18,7 +18,7 @@ const Achat = () => {
   const fetchDA = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/da").finally(() => setLoading(false));
+      const res = await api.get("/da/list-da").finally(() => setLoading(false));
       setDas(res.data);
     } catch (err) {
       console.error("Erreur chargement DA", err);

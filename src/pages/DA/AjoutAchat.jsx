@@ -105,7 +105,7 @@ const AjoutAchat = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="pt-2">
       <div className="bg-[#343a40] p-4 rounded-lg text-white shadow-md">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <FaPlus /> Ajouter une DA
@@ -156,7 +156,7 @@ const AjoutAchat = () => {
             {form.items.map((item, index) => (
               <div
                 key={index}
-                className="grid grid-cols-1 md:grid-cols-6 gap-3 mb-3 items-center"
+                className="flex justify-between gap-3 mb-3 items-center"
               >
                 <input
                   placeholder="Libellé"
@@ -171,6 +171,7 @@ const AjoutAchat = () => {
                 <input
                   type="number"
                   min="1"
+                  placeholder="Quantité"
                   required
                   value={item.quantite}
                   onChange={(e) =>
@@ -190,6 +191,9 @@ const AjoutAchat = () => {
                   <option value="pqt">pqt</option>
                   <option value="m">m</option>
                   <option value="kg">kg</option>
+                  <option value="unité">unité</option>
+                  <option value="RAM">RAM</option>
+                  <option value="mois">Mois</option>
                 </select>
                 <select
                   value={item.categorie}
@@ -208,6 +212,15 @@ const AjoutAchat = () => {
                   value={item.emplacement}
                   onChange={(e) =>
                     handleItemChange(index, "emplacement", e.target.value)
+                  }
+                  className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 outline-none"
+                />
+                 <input
+                  placeholder="Section / Service / Projet"
+                  required
+                  value={item.projet}
+                  onChange={(e) =>
+                    handleItemChange(index, "projet", e.target.value)
                   }
                   className="w-full p-2 text-sm rounded bg-[#3d454d] border border-gray-500 outline-none"
                 />
